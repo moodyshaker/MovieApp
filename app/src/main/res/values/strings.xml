@@ -1,0 +1,11 @@
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">MovieDB</string>
+    <string name="toolbar_title">MovieDB</string>
+    <string name="popular">Popular</string>
+    <string name="now_playing">Now Playing</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="review_count"><xliff:g>%d</xliff:g> reviews</string>
+</resources>
