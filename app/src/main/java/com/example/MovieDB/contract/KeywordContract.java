@@ -1,6 +1,6 @@
 package com.example.MovieDB.contract;
 
-import com.example.MovieDB.data.keywords.Keyword;
+import com.example.MovieDB.model.data.keywords.Keyword;
 
 import java.util.List;
 

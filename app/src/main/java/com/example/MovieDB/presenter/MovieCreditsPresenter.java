@@ -7,7 +7,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
 import com.example.MovieDB.R;
 import com.example.MovieDB.contract.CreditContract;
-import com.example.MovieDB.data.movie_credits.MovieCredits;
+import com.example.MovieDB.model.data.movie_credits.MovieCredits;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

@@ -7,22 +7,27 @@ import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
 import com.example.MovieDB.R;
 import com.example.MovieDB.contract.PersonContract;
-import com.example.MovieDB.data.person.Person;
+import com.example.MovieDB.model.data.person.Person;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class PersonPresenter {
 
     private PersonContract contract;
+    private int id;
 
     public PersonPresenter(PersonContract contract) {
         this.contract = contract;
     }
 
     public void getPerson(int id) {
+        this.id = id;
         String url = EndPoints.PERSON_BASE_URL + id + "?" + EndPoints.API_KEY;
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder()
+                    .setLenient()
+                    .create();
             Person person = gson.fromJson(response, Person.class);
             contract.personListener(person);
         }, error -> contract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));

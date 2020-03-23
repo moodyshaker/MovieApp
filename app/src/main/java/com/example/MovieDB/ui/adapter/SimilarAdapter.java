@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.MovieDB.R;
-import com.example.MovieDB.data.movie.Movies;
+import com.example.MovieDB.model.data.movie.Movies;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.example.MovieDB.ui.activity.MovieDetails;
 import com.squareup.picasso.Picasso;
@@ -74,7 +74,7 @@ public class SimilarAdapter extends RecyclerView.Adapter<SimilarAdapter.SimilarV
             this.movies = movies;
             Picasso.get().load(EndPoints.Image200W + movies.getPosterPath()).error(R.drawable.cinema).into(poster);
             name.setText(movies.getTitle());
-           String[] date = movies.getReleaseDate().split("-");
+            String[] date = movies.getReleaseDate().split("-");
             releaseYear.setText("(" + date[0] + ")");
             rateNumber.setText(String.valueOf(movies.getVoteAverage()));
             switch ((int) Math.round(movies.getVoteAverage())) {
@@ -119,6 +119,7 @@ public class SimilarAdapter extends RecyclerView.Adapter<SimilarAdapter.SimilarV
             Bundle bundle = new Bundle();
             bundle.putSerializable("movie_object", movies);
             i.putExtras(bundle);
+            i.putExtra("type", "one");
             context.startActivity(i);
         }
     }

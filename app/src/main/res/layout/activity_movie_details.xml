@@ -50,8 +50,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/blue_gray_800"
-            android:paddingBottom="10dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="10dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -74,37 +74,117 @@
                         android:src="@drawable/cinema" />
                 </androidx.cardview.widget.CardView>
 
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="8dp"
-                    android:src="@drawable/start_rating_drawable" />
-
-                <TextView
-                    android:id="@+id/rate_number_text"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="12dp"
-                    android:text="4.9"
-                    android:textColor="@color/blue_gray_400"
-                    android:textSize="14sp" />
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/rating_people_count_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="12dp"
-                    android:text="73 rating"
-                    android:textColor="@color/blue_gray_400"
-                    android:textSize="12sp" />
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginLeft="8dp"
+                            android:src="@drawable/start_rating_drawable" />
+
+                        <TextView
+                            android:id="@+id/rate_number_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginLeft="12dp"
+                            android:text="4.9"
+                            android:textColor="@color/blue_gray_400"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/rating_people_count_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginLeft="12dp"
+                            android:text="73 rating"
+                            android:textColor="@color/blue_gray_400"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:id="@+id/seenlist_container"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:layout_marginRight="8dp"
+                            android:padding="2dp"
+                            android:background="@drawable/seenlist_background">
+
+                            <ImageView
+                                android:id="@+id/seenlist_icon"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/seenlist_eye" />
+
+                            <TextView
+                                android:id="@+id/seenlist_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:text="Seenlist"
+                                android:gravity="center_vertical"
+                                android:layout_marginRight="8dp"
+                                android:textColor="@color/seenlist_color"
+                                android:textSize="18sp" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/wishlist_container"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:layout_marginRight="8dp"
+                            android:padding="2dp"
+                            android:background="@drawable/wishlist_background">
+
+                            <ImageView
+                                android:id="@+id/wishlist_icon"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/whishlist_heart" />
+
+                            <TextView
+                                android:id="@+id/wishlist_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:text="Wishlist"
+                                android:gravity="center_vertical"
+                                android:layout_marginRight="8dp"
+                                android:textColor="@color/wishlist_color"
+                                android:textSize="18sp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
 
             <RelativeLayout
+                android:id="@+id/review_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp">
 
@@ -115,9 +195,9 @@
                     android:layout_alignParentLeft="true"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center_vertical"
-                    tools:text="73 reviews"
                     android:textColor="@color/blue_gray_400"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    tools:text="73 reviews" />
 
                 <ImageView
                     android:layout_width="28dp"
@@ -220,10 +300,10 @@
                     android:id="@+id/director_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_marginTop="8dp"
-                    android:visibility="gone"
-                    android:layout_marginBottom="8dp">
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -237,9 +317,9 @@
                         android:id="@+id/director_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="4dp"
                         android:text="Stephen John"
                         android:textColor="@color/white"
-                        android:layout_marginLeft="4dp"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 

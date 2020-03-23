@@ -7,22 +7,25 @@ import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
 import com.example.MovieDB.R;
 import com.example.MovieDB.contract.PersonCreditsContract;
-import com.example.MovieDB.data.person.PersonCredits;
+import com.example.MovieDB.model.data.person.PersonCredits;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class PersonCreditsPresenter {
 
     private PersonCreditsContract contract;
+    private int id;
 
     public PersonCreditsPresenter(PersonCreditsContract contract) {
         this.contract = contract;
     }
 
-    public void getPerson(int id) {
+    public void getPersonWork(int id) {
+        this.id = id;
         String url = EndPoints.PERSON_BASE_URL + id + EndPoints.PERSON_MOVIE_CREDITS + EndPoints.API_KEY;
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder().setLenient().create();
             PersonCredits personCredits = gson.fromJson(response, PersonCredits.class);
             contract.creditCast(personCredits.getCast());
             contract.creditCrew(personCredits.getCrew());

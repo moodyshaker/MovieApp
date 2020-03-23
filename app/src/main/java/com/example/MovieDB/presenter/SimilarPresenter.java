@@ -9,10 +9,11 @@ import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
 import com.example.MovieDB.R;
 import com.example.MovieDB.contract.SimilarContract;
-import com.example.MovieDB.data.movie.MovieResponse;
-import com.example.MovieDB.data.movie.Movies;
+import com.example.MovieDB.model.data.movie.MovieResponse;
+import com.example.MovieDB.model.data.movie.Movies;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,9 @@ public class SimilarPresenter {
         String url = EndPoints.MOVIE_BASE_URL + id + EndPoints.SIMILAR + EndPoints.API_KEY + EndPoints.PAGES + String.valueOf(page);
         Log.e("123", url.toString());
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder()
+                    .setLenient()
+                    .create();
             MovieResponse movieResponse = gson.fromJson(response, MovieResponse.class);
             moviesList.addAll(movieResponse.getMovieList());
             contract.similarListener(moviesList);

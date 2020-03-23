@@ -1,6 +1,8 @@
 package com.example.MovieDB.ui.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.MovieDB.R;
-import com.example.MovieDB.data.movie_credits.Crew;
+import com.example.MovieDB.model.data.movie_credits.Crew;
 import com.example.MovieDB.endpoints.EndPoints;
+import com.example.MovieDB.ui.activity.ActorActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -49,21 +52,34 @@ public class CrewAdapter extends RecyclerView.Adapter<com.example.MovieDB.ui.ada
         }
     }
 
-    public class CrewViewHolder extends RecyclerView.ViewHolder {
+    public class CrewViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView poster;
         TextView name, characterName;
+        Crew crew;
 
         CrewViewHolder(View view) {
             super(view);
+            view.setOnClickListener(this);
             poster = view.findViewById(R.id.poster);
             name = view.findViewById(R.id.name);
             characterName = view.findViewById(R.id.movie_character);
         }
 
         private void dataBinding(Crew crew) {
+            this.crew = crew;
             Picasso.get().load(EndPoints.Image200W + crew.getProfilePath()).error(R.drawable.crew_icon).into(poster);
             name.setText(crew.getName());
             characterName.setText(crew.getJob());
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent i = new Intent(context, ActorActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("Crew", crew);
+            i.putExtras(bundle);
+            i.putExtra("type", "crew");
+            context.startActivity(i);
         }
     }
 }

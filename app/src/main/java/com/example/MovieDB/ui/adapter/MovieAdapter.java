@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.MovieDB.R;
-import com.example.MovieDB.data.movie.Movies;
+import com.example.MovieDB.model.data.movie.Movies;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.example.MovieDB.ui.activity.MovieDetails;
 import com.squareup.picasso.Picasso;
@@ -24,6 +24,15 @@ import java.util.List;
 public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
+
+    public void setMovies(Movies movies) {
+        this.movies = movies;
+    }
+
+    public Movies getMovies() {
+        return movies;
+    }
+
     private List<Movies> list;
     private Movies movies;
 
@@ -95,6 +104,7 @@ public class MovieAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         @Override
         public void onClick(View v) {
             Intent i = new Intent(context, MovieDetails.class);
+            i.putExtra("type", "one");
             Bundle bundle = new Bundle();
             bundle.putSerializable("movie_object", movies);
             i.putExtras(bundle);

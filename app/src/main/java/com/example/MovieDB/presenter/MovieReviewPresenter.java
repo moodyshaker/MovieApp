@@ -7,9 +7,10 @@ import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
 import com.example.MovieDB.R;
 import com.example.MovieDB.contract.ReviewContract;
-import com.example.MovieDB.data.reviews.ReviewResponse;
+import com.example.MovieDB.model.data.reviews.ReviewResponse;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class MovieReviewPresenter {
 
@@ -22,7 +23,9 @@ public class MovieReviewPresenter {
     public void getReviews(int id) {
         String url = EndPoints.MOVIE_BASE_URL + id + EndPoints.REVIEWS + EndPoints.API_KEY;
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder()
+                    .setLenient()
+                    .create();
             ReviewResponse reviewResponse = gson.fromJson(response, ReviewResponse.class);
             contract.reviewListener(reviewResponse.getReview());
             contract.reviewResultListener(reviewResponse.getTotalResults());
