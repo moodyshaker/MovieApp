@@ -23,9 +23,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.MovieDB.R;
 import com.example.MovieDB.contract.MovieContract;
-import com.example.MovieDB.model.data.movie.Movies;
+import com.example.MovieDB.model.movie.Movies;
 import com.example.MovieDB.presenter.MoviePresenter;
-import com.example.MovieDB.ui.adapter.MovieAdapter;
+import com.example.MovieDB.ui.adapter.SearchAdapter;
 import com.victor.loading.rotate.RotateLoading;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public class Upcoming extends NavigationViewActivity implements MovieContract {
     private Handler handler;
     private MoviePresenter moviePresenter;
     private RecyclerView upcomingRecyclerView;
-    private MovieAdapter movieAdapter;
+    private SearchAdapter<Movies> movieAdapter;
     private FrameLayout frameLayout;
     private Toolbar toolbar;
     private TextView title;
@@ -59,7 +59,7 @@ public class Upcoming extends NavigationViewActivity implements MovieContract {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View contentView = inflater.inflate(R.layout.activity_upcoming, null, false);
+        View contentView = inflater.inflate(R.layout.upcoming, null, false);
         frameLayout = drawerLayout.findViewById(R.id.frame_layout_holder);
         upcomingRecyclerView = contentView.findViewById(R.id.upcoming_recycler_view);
         refreshLayout = contentView.findViewById(R.id.swipe_refresh_layout);
@@ -76,7 +76,7 @@ public class Upcoming extends NavigationViewActivity implements MovieContract {
         }
         searchIcon.setVisibility(View.VISIBLE);
         upcomingRecyclerView.setLayoutManager(new GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false));
-        movieAdapter = new MovieAdapter(context);
+        movieAdapter = new SearchAdapter<>(context);
         upcomingRecyclerView.setAdapter(movieAdapter);
         handler = new Handler();
         progressBar = findViewById(R.id.progress_bar);
@@ -84,7 +84,7 @@ public class Upcoming extends NavigationViewActivity implements MovieContract {
             isLastPage = false;
         }
         searchIcon.setOnClickListener(click -> {
-            Intent i = new Intent(context, SearchActivity.class);
+            Intent i = new Intent(context, Search.class);
             startActivity(i);
         });
         moviePresenter = new MoviePresenter(this);

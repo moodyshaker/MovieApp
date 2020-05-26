@@ -1,7 +1,7 @@
 package com.example.MovieDB.contract;
 
-import com.example.MovieDB.model.data.person.PersonCast;
-import com.example.MovieDB.model.data.person.PersonCrew;
+import com.example.MovieDB.model.person.PersonCast;
+import com.example.MovieDB.model.person.PersonCrew;
 
 import java.util.List;
 

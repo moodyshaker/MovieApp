@@ -1,6 +1,6 @@
 package com.example.MovieDB.contract;
 
-import com.example.MovieDB.model.data.movie.Movies;
+import com.example.MovieDB.model.movie.Movies;
 
 import java.util.List;
 

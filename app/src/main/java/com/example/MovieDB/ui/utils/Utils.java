@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 
-import com.example.MovieDB.ui.activity.NowPlaying;
+import com.example.MovieDB.ui.activity.NowPlaying_OnTheAir;
 
 public class Utils {
 
@@ -39,7 +39,7 @@ public class Utils {
                         .bigText(message)
                 ).setAutoCancel(true)
                 .build();
-        Intent i = new Intent(context, NowPlaying.class);
+        Intent i = new Intent(context, NowPlaying_OnTheAir.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 123, i, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);
         manager.notify(NOTIFICATION_ID, notification);

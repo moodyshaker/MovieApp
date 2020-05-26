@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,7 +17,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.MovieDB.R;
+import com.example.MovieDB.persistance.sharedpreferences.MovieSharedPreference;
 import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Picasso;
 
 public class NavigationViewActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -27,8 +31,13 @@ public class NavigationViewActivity extends AppCompatActivity implements Navigat
     private Toolbar toolbar;
     private TextView title;
     private Intent i;
+        private View headerView;
+    private TextView username, userEmail;
+    private ImageView userIcon;
+    private MovieSharedPreference.UserPreferences userPreferences;
 
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_view);
@@ -46,6 +55,20 @@ public class NavigationViewActivity extends AppCompatActivity implements Navigat
         toggle.setDrawerIndicatorEnabled(true);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+        userPreferences = MovieSharedPreference.UserPreferences.getUserPreference(context);
+        headerView = navigationView.getHeaderView(0);
+        username = headerView.findViewById(R.id.username);
+        userEmail = headerView.findViewById(R.id.user_email);
+        userIcon = headerView.findViewById(R.id.user_icon);
+        if (!userPreferences.getID().isEmpty()) {
+            Picasso.get().load(userPreferences.getImage()).into(userIcon);
+            username.setText(userPreferences.getUsername());
+            userEmail.setText(userPreferences.getEmail());
+        }
+        headerView.setOnClickListener(click -> {
+            Intent i = new Intent(context, Profile.class);
+            startActivity(i);
+        });
         setNavigationItemChecked();
     }
 
@@ -62,12 +85,12 @@ public class NavigationViewActivity extends AppCompatActivity implements Navigat
         int id = menuItem.getItemId();
         switch (id) {
             case R.id.now_playing:
-                i = new Intent(context, NowPlaying.class);
+                i = new Intent(context, NowPlaying_OnTheAir.class);
                 i.putExtra("title", menuItem.getTitle());
                 startActivity(i);
                 break;
             case R.id.popular:
-                i = new Intent(context, Popular.class);
+                i = new Intent(context, Popular_Movies_TVShows.class);
                 i.putExtra("title", menuItem.getTitle());
                 startActivity(i);
                 break;
@@ -77,7 +100,7 @@ public class NavigationViewActivity extends AppCompatActivity implements Navigat
                 startActivity(i);
                 break;
             case R.id.top_rated:
-                i = new Intent(context, TopRated.class);
+                i = new Intent(context, TopRated_Movies_TVShows.class);
                 i.putExtra("title", menuItem.getTitle());
                 startActivity(i);
                 break;
@@ -114,14 +137,14 @@ public class NavigationViewActivity extends AppCompatActivity implements Navigat
     }
 
     private void setNavigationItemChecked() {
-        if (context.getClass().equals(NowPlaying.class)) {
+        if (context.getClass().equals(NowPlaying_OnTheAir.class)) {
             navigationView.setCheckedItem(R.id.now_playing);
             title.setText("Hello");
-        } else if (context.getClass().equals(Popular.class)) {
+        } else if (context.getClass().equals(Popular_Movies_TVShows.class)) {
             navigationView.setCheckedItem(R.id.popular);
         } else if (context.getClass().equals(Upcoming.class)) {
             navigationView.setCheckedItem(R.id.upcoming);
-        } else if (context.getClass().equals(TopRated.class)) {
+        } else if (context.getClass().equals(TopRated_Movies_TVShows.class)) {
             navigationView.setCheckedItem(R.id.top_rated);
         } else if (context.getClass().equals(Profile.class)) {
             navigationView.setCheckedItem(R.id.profile);
@@ -131,9 +154,8 @@ public class NavigationViewActivity extends AppCompatActivity implements Navigat
             navigationView.setCheckedItem(R.id.near_by);
         } else if (context.getClass().equals(Wishlist.class)) {
             navigationView.setCheckedItem(R.id.wishList);
-        }else if (context.getClass().equals(Seenlist.class)) {
+        } else if (context.getClass().equals(Seenlist.class)) {
             navigationView.setCheckedItem(R.id.seenlist);
         }
     }
-
 }

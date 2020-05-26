@@ -13,8 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.MovieDB.R;
-import com.example.MovieDB.model.data.person.PersonCast;
 import com.example.MovieDB.endpoints.EndPoints;
+import com.example.MovieDB.model.person.PersonCast;
 import com.example.MovieDB.ui.activity.MovieDetails;
 import com.squareup.picasso.Picasso;
 
@@ -83,11 +83,11 @@ public class PersonCastAdapter extends RecyclerView.Adapter<PersonCastAdapter.Pe
             } else {
                 creditName.setVisibility(View.GONE);
             }
-            if (personCast.getReleaseDate() != null) {
+            if (!personCast.getReleaseDate().isEmpty()) {
                 String[] arr = personCast.getReleaseDate().split("-");
                 releaseYear.setText("(" + arr[0] + ")");
             } else {
-                releaseYear.setVisibility(View.GONE);
+                releaseYear.setText("not provided");
             }
 
         }

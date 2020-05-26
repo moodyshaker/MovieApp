@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#546E7A</color>
     <color name="colorPrimaryDark">#455A64</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorAccent">#607D8B</color>
 
     <color name="blue_gray_50">#ECEFF1</color>
     <color name="blue_gray_100">#CFD8DC</color>
@@ -12,36 +12,46 @@
     <color name="blue_gray_500">#607D8B</color>
     <color name="blue_gray_600">#546E7A</color>
     <color name="blue_gray_700">#455A64</color>
+    <color name="blue_gray_700_trans">#4D455A64</color>
     <color name="blue_gray_800">#37474F</color>
     <color name="blue_gray_900">#263238</color>
 
 
     <color name="purple_900">#4A148C</color>
+    <color name="purple_900_trans">#4D4A148C</color>
     <color name="pink_900">#880E4F</color>
     <color name="red_900">#B71C1C</color>
-
+    <color name="red_900_trans">#4DB71C1C</color>
     <color name="blue_900">#0D47A1</color>
+    <color name="blue_900_trans">#4D0D47A1</color>
     <color name="indigo_900">#1A237E</color>
     <color name="deep_purple_900">#311B92</color>
     <color name="grey">#9E9E9E</color>
     <color name="teal_900">#004D40</color>
     <color name="cyan_900">#006064</color>
+    <color name="cyan_900_trans">#4D006064</color>
     <color name="light_blue_900">#01579B</color>
+    <color name="light_blue_900_trans">#4D01579B</color>
 
     <color name="lime_900">#827717</color>
     <color name="yellow_A200">#FFFF00</color>
+    <color name="yellow_A200_trans">#4DFFFF00</color>
     <color name="light_green_900">#33691E</color>
+    <color name="light_green_900_trans">#4D33691E</color>
 
     <color name="green_900">#1B5E20</color>
     <color name="orange_900">#E65100</color>
     <color name="amber_900">#FF6F00</color>
+    <color name="amber_900_trans">#4DFF6F00</color>
 
     <color name="yellow_900">#F57F17</color>
     <color name="brown_900">#3E2723</color>
+    <color name="brown_900_trans">#4D3E2723</color>
 
 
     <color name="deep_orange_900">#BF360C</color>
     <color name="white">#ffffff</color>
+    <color name="white_trans">#4Dffffff</color>
     <color name="black">#000000</color>
 
     <color name="gray_50">#FAFAFA</color>
@@ -54,7 +64,8 @@
     <color name="gray_700">#616161</color>
     <color name="gray_800">#424242</color>
     <color name="gray_900">#212121</color>
-
+    <color name="pink_A200">#F50057</color>
+    <color name="pink_A200_trans">#4DF50057</color>
     <color name="seenlist_color">#42b264</color>
     <color name="wishlist_color">#BE2229</color>
 

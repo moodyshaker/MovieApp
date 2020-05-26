@@ -1,6 +1,7 @@
 package com.example.MovieDB.ui.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -14,8 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.MovieDB.R;
 import com.example.MovieDB.contract.ReviewContract;
-import com.example.MovieDB.model.data.reviews.Reviews;
-import com.example.MovieDB.presenter.MovieReviewPresenter;
+import com.example.MovieDB.model.reviews.Reviews;
+import com.example.MovieDB.presenter.ReviewPresenter;
 import com.example.MovieDB.ui.adapter.ReviewAdapter;
 
 import java.util.List;
@@ -25,12 +26,13 @@ public class ReviewActivity extends NavigationViewActivity implements ReviewCont
     private Context context = this;
     private TextView title;
     private Toolbar toolbar;
-    private MovieReviewPresenter reviewPresenter;
+    private ReviewPresenter reviewPresenter;
     private ReviewAdapter adapter;
     private RecyclerView recyclerView;
     private ActionBar actionBar;
     private int id;
-    private String movieTitle;
+    private String headTitle;
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +48,20 @@ public class ReviewActivity extends NavigationViewActivity implements ReviewCont
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.blue_gray_100), PorterDuff.Mode.SRC_ATOP);
-        id = getIntent().getIntExtra("movie_id", 0);
-        movieTitle = getIntent().getStringExtra("movie_title");
-        title.setText(getResources().getString(R.string.reviews, movieTitle));
-        reviewPresenter = new MovieReviewPresenter(this);
-        reviewPresenter.getReviews(id);
+        intent = getIntent();
+        if(intent.hasExtra("movie_id")){
+        id = intent.getIntExtra("movie_id", 0);
+        headTitle = getIntent().getStringExtra("movie_title");
+        title.setText(getResources().getString(R.string.reviews, headTitle));
+        reviewPresenter = new ReviewPresenter(this);
+        reviewPresenter.getMovieReviews(id);
+        }else if(intent.hasExtra("series_id")){
+            id = intent.getIntExtra("series_id", 0);
+            headTitle = getIntent().getStringExtra("series_title");
+            title.setText(getResources().getString(R.string.reviews, headTitle));
+            reviewPresenter = new ReviewPresenter(this);
+            reviewPresenter.getSeriesReviews(id);
+        }
     }
 
     @Override

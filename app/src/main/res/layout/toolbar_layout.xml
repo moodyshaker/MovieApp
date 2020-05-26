@@ -34,7 +34,6 @@
                 android:layout_weight="1"
                 android:src="@drawable/baseline_search_white_24"
                 android:visibility="gone" />
-
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 </com.google.android.material.appbar.AppBarLayout>

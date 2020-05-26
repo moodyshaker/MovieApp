@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.MovieDB.R;
-import com.example.MovieDB.model.data.reviews.Reviews;
+import com.example.MovieDB.model.reviews.Reviews;
 
 import java.util.List;
 

@@ -10,17 +10,28 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.MovieDB.R;
-import com.example.MovieDB.model.data.keywords.Keyword;
+import com.example.MovieDB.model.keywords.Keyword;
+import com.example.MovieDB.model.keywords.SeriesKeywords;
+import com.example.MovieDB.model.keywords_from_search.KeywordResult;
 
 import java.util.List;
 
-public class KeywordAdapter extends RecyclerView.Adapter<KeywordAdapter.KeywordViewHolder> {
+public class KeywordAdapter<E> extends RecyclerView.Adapter<KeywordAdapter.KeywordViewHolder> {
 
     private Context context;
-    private List<Keyword> keywordList;
+    private List<E> keywordList;
+    private OnMovieKeywordClickListener<E> clickListener;
 
-    public KeywordAdapter(Context context, List<Keyword> keywordList) {
+    public KeywordAdapter(Context context, OnMovieKeywordClickListener<E> clickListener) {
         this.context = context;
+        this.clickListener = clickListener;
+    }
+
+    public List<E> getKeywordList() {
+        return keywordList;
+    }
+
+    public void setKeywordList(List<E> keywordList) {
         this.keywordList = keywordList;
     }
 
@@ -32,9 +43,9 @@ public class KeywordAdapter extends RecyclerView.Adapter<KeywordAdapter.KeywordV
     }
 
     @Override
-    public void onBindViewHolder(@NonNull KeywordViewHolder holder, int position) {
-        Keyword keyword = keywordList.get(position);
-        holder.dataBinding(keyword);
+    public void onBindViewHolder(@NonNull KeywordAdapter.KeywordViewHolder holder, int position) {
+        E object = keywordList.get(position);
+        holder.dataBinding(object);
     }
 
     @Override
@@ -46,15 +57,34 @@ public class KeywordAdapter extends RecyclerView.Adapter<KeywordAdapter.KeywordV
         }
     }
 
-    public class KeywordViewHolder extends RecyclerView.ViewHolder {
+    public class KeywordViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView keywordText;
+        E object;
+
         KeywordViewHolder(View view) {
             super(view);
+            view.setOnClickListener(this);
             keywordText = view.findViewById(R.id.keyword_text);
         }
 
-        private void dataBinding(Keyword keyword) {
-            keywordText.setText(keyword.getName());
+        private void dataBinding(E object) {
+            this.object = object;
+            if (object instanceof Keyword) {
+                keywordText.setText(((Keyword) object).getName());
+            } else if (object instanceof KeywordResult) {
+                keywordText.setText(((KeywordResult) object).getName());
+            }else if (object instanceof SeriesKeywords) {
+                keywordText.setText(((SeriesKeywords) object).getName());
+            }
         }
+
+        @Override
+        public void onClick(View v) {
+            clickListener.OnMovieKeywordClick(object);
+        }
+    }
+
+    public interface OnMovieKeywordClickListener<E> {
+        void OnMovieKeywordClick(E object);
     }
 }

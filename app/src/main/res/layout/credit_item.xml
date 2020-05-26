@@ -40,7 +40,7 @@
             android:fontFamily="@font/bitter_font"
             android:gravity="center"
             android:maxLines="1"
-            android:textColor="@android:color/black"
+            android:textColor="@color/gray_500"
             android:textSize="14sp"
             tools:text="hello" />
 

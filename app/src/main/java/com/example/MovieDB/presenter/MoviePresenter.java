@@ -9,9 +9,9 @@ import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
 import com.example.MovieDB.R;
 import com.example.MovieDB.contract.MovieContract;
-import com.example.MovieDB.model.data.movie.MovieResponse;
-import com.example.MovieDB.model.data.movie.Movies;
 import com.example.MovieDB.endpoints.EndPoints;
+import com.example.MovieDB.model.movie.MovieResponse;
+import com.example.MovieDB.model.movie.Movies;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -50,7 +50,7 @@ public class MoviePresenter {
         }
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         String url = EndPoints.MOVIE_BASE_URL + TYPE + EndPoints.API_KEY + EndPoints.PAGES + String.valueOf(page);
-        Log.e("url", url);
+        Log.e("movie", url);
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()

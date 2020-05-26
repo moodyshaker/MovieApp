@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/darker_gray"
-        tools:context=".ui.activity.NowPlaying">
+        tools:context=".ui.activity.NowPlaying_OnTheAir">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/now_playing_recycler_view"
