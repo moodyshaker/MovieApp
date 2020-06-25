@@ -100,7 +100,7 @@ public class SearchAdapter<E> extends RecyclerView.Adapter<SearchAdapter.SearchV
                     formatter = new SimpleDateFormat("MMM dd yyyy");
                     finalDate = formatter.format(date);
                     releaseDate.setText(finalDate);
-                }else{
+                } else {
                     releaseDate.setText("not provided");
                 }
                 rateText.setText(String.valueOf(((Movies) object).getVoteAverage()));
@@ -117,7 +117,7 @@ public class SearchAdapter<E> extends RecyclerView.Adapter<SearchAdapter.SearchV
                     formatter = new SimpleDateFormat("MMM dd yyyy");
                     finalDate = formatter.format(date);
                     releaseDate.setText(finalDate);
-                }else{
+                } else {
                     releaseDate.setText("not provided");
                 }
                 rateText.setText(String.valueOf(((SeriesResult) object).getVoteAverage()));

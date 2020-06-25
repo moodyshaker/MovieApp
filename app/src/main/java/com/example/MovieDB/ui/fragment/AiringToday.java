@@ -1,4 +1,4 @@
-package com.example.MovieDB.ui.activity;
+package com.example.MovieDB.ui.fragment;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,8 +24,9 @@ import com.victor.loading.rotate.RotateLoading;
 
 import java.util.List;
 
-public class TopRatedSeries extends Fragment implements SeriesContract {
-
+public class AiringToday extends Fragment implements SeriesContract {
+    private RecyclerView airingTodayRecyclerView;
+    private SearchAdapter<SeriesResult> seriesAdapter;
     private boolean isLoading = false;
     private int pages = 1;
     private RotateLoading loading;
@@ -35,30 +36,28 @@ public class TopRatedSeries extends Fragment implements SeriesContract {
     private int currentItemPosition = 0;
     private int lastPage = 55;
     private boolean isLastPage = false;
-    private SwipeRefreshLayout refreshLayout;
     private Handler handler;
     private SeriesPresenter seriesPresenter;
-    private RecyclerView topRatedSeriesRecyclerView;
-    private SearchAdapter<SeriesResult> seriesAdapter;
+    private SwipeRefreshLayout refreshLayout;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.top_rated_series, container, false);
-        topRatedSeriesRecyclerView = v.findViewById(R.id.top_rated_series_recycler_view);
+        View v = inflater.inflate(R.layout.airing_today, container, false);
+        airingTodayRecyclerView = v.findViewById(R.id.airing_today_recycler_view);
         refreshLayout = v.findViewById(R.id.swipe_refresh_layout);
         loading = v.findViewById(R.id.rotate_loading);
-        topRatedSeriesRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2, GridLayoutManager.VERTICAL, false));
+        airingTodayRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2, GridLayoutManager.VERTICAL, false));
         seriesAdapter = new SearchAdapter<>(getActivity());
-        topRatedSeriesRecyclerView.setAdapter(seriesAdapter);
+        airingTodayRecyclerView.setAdapter(seriesAdapter);
         handler = new Handler();
         progressBar = v.findViewById(R.id.progress_bar);
         if ((pages <= lastPage)) {
             isLastPage = false;
         }
         seriesPresenter = new SeriesPresenter(this);
-        seriesPresenter.getSeries(4, 1);
-        topRatedSeriesRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        seriesPresenter.getSeries(1, 1);
+        airingTodayRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -83,29 +82,12 @@ public class TopRatedSeries extends Fragment implements SeriesContract {
         refreshLayout.setOnRefreshListener(() -> {
             refreshLayout.setRefreshing(true);
             seriesAdapter.getList().clear();
-            topRatedSeriesRecyclerView.setVisibility(View.GONE);
+            airingTodayRecyclerView.setVisibility(View.GONE);
             handler.postDelayed(() -> {
-                seriesPresenter.getSeries(4, 1);
+                seriesPresenter.getSeries(1, 1);
             }, 1500);
         });
         return v;
-    }
-
-    @Override
-    public void internetConnectionError(int internetConnectionIcon) {
-        Toast.makeText(getActivity(), "no internet connection", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void showLoading() {
-        topRatedSeriesRecyclerView.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void removeLoading() {
-        progressBar.setVisibility(View.GONE);
-        topRatedSeriesRecyclerView.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -113,8 +95,25 @@ public class TopRatedSeries extends Fragment implements SeriesContract {
         loading.setVisibility(View.GONE);
         loading.stop();
         refreshLayout.setRefreshing(false);
-        topRatedSeriesRecyclerView.setVisibility(View.VISIBLE);
+        airingTodayRecyclerView.setVisibility(View.VISIBLE);
         seriesAdapter.setList(seriesList);
         seriesAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void showLoading() {
+        airingTodayRecyclerView.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void removeLoading() {
+        progressBar.setVisibility(View.GONE);
+        airingTodayRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void internetConnectionError(int internetConnectionIcon) {
+        Toast.makeText(getActivity(), "no internet connection", Toast.LENGTH_SHORT).show();
     }
 }

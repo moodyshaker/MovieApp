@@ -41,6 +41,9 @@ import com.example.MovieDB.model.reviews.Reviews;
 import com.example.MovieDB.model.series.SeriesDetailsModel;
 import com.example.MovieDB.model.series.SeriesResult;
 import com.example.MovieDB.model.series.SeriesSeasons;
+import com.example.MovieDB.persistance.database.entity.SeriesEntity;
+import com.example.MovieDB.persistance.database.roomdb.DatabaseRepository;
+import com.example.MovieDB.persistance.sharedpreferences.MovieSharedPreference;
 import com.example.MovieDB.presenter.KeywordPresenter;
 import com.example.MovieDB.presenter.MovieCreditsPresenter;
 import com.example.MovieDB.presenter.RecommendationsPresenter;
@@ -61,8 +64,14 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 public class SeriesDetails extends AppCompatActivity implements SeriesDetailsContract, SeriesKeywordContract, SeasonAdapter.SeasonClickListener, TrailerContract, CreditContract, SimilarSeriesContract, RecommendationsSeriesContract, ReviewContract, KeywordAdapter.OnMovieKeywordClickListener<SeriesKeywords> {
     private SeriesResult series;
+    private static final String TAG = "TAG";
     private Bundle bundle;
     private SeriesDetailsModel details;
     private ProgressBar rateProgressbar;
@@ -95,9 +104,10 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
     private YouTubePlayer player;
     private SeasonAdapter seasonAdapter;
     private ProgressDialog dialog;
+    private DatabaseRepository repository;
+    private MovieSharedPreference.UserPreferences userPreferences;
 
     @Override
-
     protected void onStart() {
         super.onStart();
         if (player != null) {
@@ -137,33 +147,132 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
         recoPresenter = new RecommendationsPresenter(this);
         similarPresenter = new SimilarPresenter(this);
         reviewPresenter = new ReviewPresenter(this);
+        repository = DatabaseRepository.getRepo(context);
+        userPreferences = MovieSharedPreference.UserPreferences.getUserPreference(context);
         wishlistContainer.setOnClickListener(click -> {
+            SeriesEntity entity = SeriesEntity.getSeriesEntity(series, userPreferences.getID());
             if (wishlistContainer.getBackground().getConstantState() == getResources().getDrawable(R.drawable.wishlist_background).getConstantState()) {
                 Toast.makeText(context, "item added to Wishlist", Toast.LENGTH_SHORT).show();
                 wishlistContainer.setBackgroundResource(R.drawable.wishlist_background_fill);
                 wishlistIcon.setImageResource(R.drawable.favourite_white);
                 wishlistText.setTextColor(getResources().getColor(R.color.white));
+                repository.getSeriesById(entity.getSeries_id())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new SingleObserver<SeriesEntity>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onSuccess(SeriesEntity seriesEntity) {
+                                repository.setSeriesToWish(seriesEntity.getSeries_id());
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                repository.addSeries(entity);
+                                repository.setSeriesToWish(entity.getSeries_id());
+                            }
+                        });
             } else {
                 Toast.makeText(context, "item removed from Wishlist", Toast.LENGTH_SHORT).show();
                 wishlistContainer.setBackgroundResource(R.drawable.wishlist_background);
                 wishlistIcon.setImageResource(R.drawable.whishlist_heart);
                 wishlistText.setTextColor(getResources().getColor(R.color.wishlist_color));
+                repository.deleteWishSeries(entity.getSeries_id());
             }
         });
-
         seenlistContianer.setOnClickListener(click -> {
+            SeriesEntity entity = SeriesEntity.getSeriesEntity(series, userPreferences.getID());
             if (seenlistContianer.getBackground().getConstantState() == getResources().getDrawable(R.drawable.seenlist_background).getConstantState()) {
                 Toast.makeText(context, "item added to Seenlist", Toast.LENGTH_SHORT).show();
                 seenlistContianer.setBackgroundResource(R.drawable.seenlist_background_fill);
                 seenlistIcon.setImageResource(R.drawable.eye_white);
                 seenlistText.setTextColor(getResources().getColor(R.color.white));
+                repository.getSeriesById(entity.getSeries_id())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new SingleObserver<SeriesEntity>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onSuccess(SeriesEntity seriesEntity) {
+                                repository.setSeriesToSeen(seriesEntity.getSeries_id());
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                repository.addSeries(entity);
+                                repository.setSeriesToSeen(entity.getSeries_id());
+                            }
+                        });
             } else {
                 Toast.makeText(context, "item removed from Seenlist", Toast.LENGTH_SHORT).show();
                 seenlistContianer.setBackgroundResource(R.drawable.seenlist_background);
                 seenlistIcon.setImageResource(R.drawable.seenlist_eye);
                 seenlistText.setTextColor(getResources().getColor(R.color.seenlist_color));
+                repository.deleteSeenSeries(entity.getSeries_id());
             }
         });
+        repository.getSeenSeries(series.getId())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<SeriesEntity>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(SeriesEntity seriesEntity) {
+                        if (seriesEntity != null) {
+                            seenlistContianer.setBackgroundResource(R.drawable.seenlist_background_fill);
+                            seenlistIcon.setImageResource(R.drawable.eye_white);
+                            seenlistText.setTextColor(getResources().getColor(R.color.white));
+                        } else {
+                            seenlistContianer.setBackgroundResource(R.drawable.seenlist_background);
+                            seenlistIcon.setImageResource(R.drawable.seenlist_eye);
+                            seenlistText.setTextColor(getResources().getColor(R.color.seenlist_color));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+                });
+        repository.getWishSeries(series.getId())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<SeriesEntity>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(SeriesEntity seriesEntity) {
+                        if (seriesEntity != null) {
+                            wishlistContainer.setBackgroundResource(R.drawable.wishlist_background_fill);
+                            wishlistIcon.setImageResource(R.drawable.favourite_white);
+                            wishlistText.setTextColor(getResources().getColor(R.color.white));
+                        } else {
+                            wishlistContainer.setBackgroundResource(R.drawable.wishlist_background);
+                            wishlistIcon.setImageResource(R.drawable.whishlist_heart);
+                            wishlistText.setTextColor(getResources().getColor(R.color.wishlist_color));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+                });
         recommendationRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -293,7 +402,7 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
         if (casts.size() == 0) {
             castContainer.setVisibility(View.GONE);
         }
-       castAdapter.setCastList(casts);
+        castAdapter.setCastList(casts);
     }
 
     @Override

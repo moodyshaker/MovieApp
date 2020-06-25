@@ -1,4 +1,5 @@
-package com.example.MovieDB.ui.activity;
+package com.example.MovieDB.ui.fragment;
+
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,8 +25,10 @@ import com.victor.loading.rotate.RotateLoading;
 
 import java.util.List;
 
-public class AiringToday extends Fragment implements SeriesContract {
-    private RecyclerView airingTodayRecyclerView;
+public class OnTheAir extends Fragment implements SeriesContract {
+
+
+    private RecyclerView onTheAirRecyclerView;
     private SearchAdapter<SeriesResult> seriesAdapter;
     private boolean isLoading = false;
     private int pages = 1;
@@ -43,21 +46,21 @@ public class AiringToday extends Fragment implements SeriesContract {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.airing_today, container, false);
-        airingTodayRecyclerView = v.findViewById(R.id.airing_today_recycler_view);
+        View v = inflater.inflate(R.layout.on_the_air, container, false);
+        onTheAirRecyclerView = v.findViewById(R.id.on_the_air_recycler_view);
         refreshLayout = v.findViewById(R.id.swipe_refresh_layout);
         loading = v.findViewById(R.id.rotate_loading);
-        airingTodayRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2, GridLayoutManager.VERTICAL, false));
+        onTheAirRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2, GridLayoutManager.VERTICAL, false));
         seriesAdapter = new SearchAdapter<>(getActivity());
-        airingTodayRecyclerView.setAdapter(seriesAdapter);
+        onTheAirRecyclerView.setAdapter(seriesAdapter);
         handler = new Handler();
         progressBar = v.findViewById(R.id.progress_bar);
         if ((pages <= lastPage)) {
             isLastPage = false;
         }
         seriesPresenter = new SeriesPresenter(this);
-        seriesPresenter.getSeries(1, 1);
-        airingTodayRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        seriesPresenter.getSeries(2, 1);
+        onTheAirRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -82,9 +85,9 @@ public class AiringToday extends Fragment implements SeriesContract {
         refreshLayout.setOnRefreshListener(() -> {
             refreshLayout.setRefreshing(true);
             seriesAdapter.getList().clear();
-            airingTodayRecyclerView.setVisibility(View.GONE);
+            onTheAirRecyclerView.setVisibility(View.GONE);
             handler.postDelayed(() -> {
-                seriesPresenter.getSeries(1, 1);
+                seriesPresenter.getSeries(2, 1);
             }, 1500);
         });
         return v;
@@ -95,21 +98,21 @@ public class AiringToday extends Fragment implements SeriesContract {
         loading.setVisibility(View.GONE);
         loading.stop();
         refreshLayout.setRefreshing(false);
-        airingTodayRecyclerView.setVisibility(View.VISIBLE);
+        onTheAirRecyclerView.setVisibility(View.VISIBLE);
         seriesAdapter.setList(seriesList);
         seriesAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void showLoading() {
-        airingTodayRecyclerView.setVisibility(View.GONE);
+        onTheAirRecyclerView.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void removeLoading() {
         progressBar.setVisibility(View.GONE);
-        airingTodayRecyclerView.setVisibility(View.VISIBLE);
+        onTheAirRecyclerView.setVisibility(View.VISIBLE);
     }
 
     @Override

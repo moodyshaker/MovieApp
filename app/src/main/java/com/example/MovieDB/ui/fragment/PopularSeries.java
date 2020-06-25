@@ -1,4 +1,4 @@
-package com.example.MovieDB.ui.activity;
+package com.example.MovieDB.ui.fragment;
 
 import android.os.Bundle;
 import android.os.Handler;

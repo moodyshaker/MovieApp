@@ -1,4 +1,4 @@
-package com.example.MovieDB.ui.activity;
+package com.example.MovieDB.ui.fragment;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,15 +16,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.MovieDB.R;
-import com.example.MovieDB.contract.MovieContract;
-import com.example.MovieDB.model.movie.Movies;
-import com.example.MovieDB.presenter.MoviePresenter;
+import com.example.MovieDB.contract.SeriesContract;
+import com.example.MovieDB.model.series.SeriesResult;
+import com.example.MovieDB.presenter.SeriesPresenter;
 import com.example.MovieDB.ui.adapter.SearchAdapter;
 import com.victor.loading.rotate.RotateLoading;
 
 import java.util.List;
 
-public class PopularMovies extends Fragment implements MovieContract {
+public class TopRatedSeries extends Fragment implements SeriesContract {
 
     private boolean isLoading = false;
     private int pages = 1;
@@ -37,28 +37,28 @@ public class PopularMovies extends Fragment implements MovieContract {
     private boolean isLastPage = false;
     private SwipeRefreshLayout refreshLayout;
     private Handler handler;
-    private MoviePresenter moviePresenter;
-    private RecyclerView popularRecyclerView;
-    private SearchAdapter<Movies> movieAdapter;
+    private SeriesPresenter seriesPresenter;
+    private RecyclerView topRatedSeriesRecyclerView;
+    private SearchAdapter<SeriesResult> seriesAdapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.popular_movies, container, false);
-        popularRecyclerView = v.findViewById(R.id.popular_movies_recycler_view);
+        View v = inflater.inflate(R.layout.top_rated_series, container, false);
+        topRatedSeriesRecyclerView = v.findViewById(R.id.top_rated_series_recycler_view);
         refreshLayout = v.findViewById(R.id.swipe_refresh_layout);
         loading = v.findViewById(R.id.rotate_loading);
-        popularRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2, GridLayoutManager.VERTICAL, false));
-        movieAdapter = new SearchAdapter<>(getActivity());
-        popularRecyclerView.setAdapter(movieAdapter);
+        topRatedSeriesRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2, GridLayoutManager.VERTICAL, false));
+        seriesAdapter = new SearchAdapter<>(getActivity());
+        topRatedSeriesRecyclerView.setAdapter(seriesAdapter);
         handler = new Handler();
         progressBar = v.findViewById(R.id.progress_bar);
         if ((pages <= lastPage)) {
             isLastPage = false;
         }
-        moviePresenter = new MoviePresenter(this);
-        moviePresenter.getMovie(2, 1);
-        popularRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        seriesPresenter = new SeriesPresenter(this);
+        seriesPresenter.getSeries(4, 1);
+        topRatedSeriesRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -72,7 +72,7 @@ public class PopularMovies extends Fragment implements MovieContract {
                         loading.setVisibility(View.VISIBLE);
                         loading.start();
                         handler.postDelayed(() -> {
-                            moviePresenter.increasePages();
+                            seriesPresenter.increasePages();
                         }, 2000);
                     }
                 } else {
@@ -82,10 +82,10 @@ public class PopularMovies extends Fragment implements MovieContract {
         });
         refreshLayout.setOnRefreshListener(() -> {
             refreshLayout.setRefreshing(true);
-            movieAdapter.getList().clear();
-            popularRecyclerView.setVisibility(View.GONE);
+            seriesAdapter.getList().clear();
+            topRatedSeriesRecyclerView.setVisibility(View.GONE);
             handler.postDelayed(() -> {
-                moviePresenter.getMovie(2, 1);
+                seriesPresenter.getSeries(4, 1);
             }, 1500);
         });
         return v;
@@ -97,24 +97,24 @@ public class PopularMovies extends Fragment implements MovieContract {
     }
 
     @Override
-    public void movieListener(List<Movies> Movies) {
-        loading.setVisibility(View.GONE);
-        loading.stop();
-        refreshLayout.setRefreshing(false);
-        popularRecyclerView.setVisibility(View.VISIBLE);
-        movieAdapter.setList(Movies);
-        movieAdapter.notifyDataSetChanged();
-    }
-
-    @Override
     public void showLoading() {
-        popularRecyclerView.setVisibility(View.GONE);
+        topRatedSeriesRecyclerView.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void removeLoading() {
         progressBar.setVisibility(View.GONE);
-        popularRecyclerView.setVisibility(View.VISIBLE);
+        topRatedSeriesRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void seriesListener(List<SeriesResult> seriesList) {
+        loading.setVisibility(View.GONE);
+        loading.stop();
+        refreshLayout.setRefreshing(false);
+        topRatedSeriesRecyclerView.setVisibility(View.VISIBLE);
+        seriesAdapter.setList(seriesList);
+        seriesAdapter.notifyDataSetChanged();
     }
 }

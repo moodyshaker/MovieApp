@@ -19,6 +19,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.MovieDB.R;
+import com.example.MovieDB.ui.fragment.AiringToday;
+import com.example.MovieDB.ui.fragment.NowPlaying;
+import com.example.MovieDB.ui.fragment.OnTheAir;
 import com.google.android.material.tabs.TabLayout;
 
 public class NowPlaying_OnTheAir extends NavigationViewActivity implements TabLayout.OnTabSelectedListener {

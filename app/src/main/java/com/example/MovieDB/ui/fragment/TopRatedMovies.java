@@ -1,4 +1,4 @@
-package com.example.MovieDB.ui.activity;
+package com.example.MovieDB.ui.fragment;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,9 +24,8 @@ import com.victor.loading.rotate.RotateLoading;
 
 import java.util.List;
 
-public class NowPlaying extends Fragment implements MovieContract {
-    private RecyclerView nowPlayingRecyclerView;
-    private SearchAdapter<Movies> movieAdapter;
+public class TopRatedMovies extends Fragment implements MovieContract {
+
     private boolean isLoading = false;
     private int pages = 1;
     private RotateLoading loading;
@@ -36,28 +35,30 @@ public class NowPlaying extends Fragment implements MovieContract {
     private int currentItemPosition = 0;
     private int lastPage = 55;
     private boolean isLastPage = false;
+    private SwipeRefreshLayout refreshLayout;
     private Handler handler;
     private MoviePresenter moviePresenter;
-    private SwipeRefreshLayout refreshLayout;
+    private RecyclerView topRatedMoviesRecyclerView;
+    private SearchAdapter<Movies> movieAdapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.now_playing, container, false);
-        nowPlayingRecyclerView = v.findViewById(R.id.now_playing_recycler_view);
+        View v = inflater.inflate(R.layout.top_rated_movies, container, false);
+        topRatedMoviesRecyclerView = v.findViewById(R.id.top_rated_movies_recycler_view);
         refreshLayout = v.findViewById(R.id.swipe_refresh_layout);
         loading = v.findViewById(R.id.rotate_loading);
-        nowPlayingRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2, GridLayoutManager.VERTICAL, false));
+        topRatedMoviesRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2, GridLayoutManager.VERTICAL, false));
         movieAdapter = new SearchAdapter<>(getActivity());
-        nowPlayingRecyclerView.setAdapter(movieAdapter);
+        topRatedMoviesRecyclerView.setAdapter(movieAdapter);
         handler = new Handler();
         progressBar = v.findViewById(R.id.progress_bar);
         if ((pages <= lastPage)) {
             isLastPage = false;
         }
         moviePresenter = new MoviePresenter(this);
-        moviePresenter.getMovie(1, 1);
-        nowPlayingRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        moviePresenter.getMovie(4, 1);
+        topRatedMoviesRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -82,9 +83,9 @@ public class NowPlaying extends Fragment implements MovieContract {
         refreshLayout.setOnRefreshListener(() -> {
             refreshLayout.setRefreshing(true);
             movieAdapter.getList().clear();
-            nowPlayingRecyclerView.setVisibility(View.GONE);
+            topRatedMoviesRecyclerView.setVisibility(View.GONE);
             handler.postDelayed(() -> {
-                moviePresenter.getMovie(1, 1);
+                moviePresenter.getMovie(4, 1);
             }, 1500);
         });
         return v;
@@ -100,20 +101,20 @@ public class NowPlaying extends Fragment implements MovieContract {
         loading.setVisibility(View.GONE);
         loading.stop();
         refreshLayout.setRefreshing(false);
-        nowPlayingRecyclerView.setVisibility(View.VISIBLE);
+        topRatedMoviesRecyclerView.setVisibility(View.VISIBLE);
         movieAdapter.setList(Movies);
         movieAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void showLoading() {
-        nowPlayingRecyclerView.setVisibility(View.GONE);
+        topRatedMoviesRecyclerView.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void removeLoading() {
         progressBar.setVisibility(View.GONE);
-        nowPlayingRecyclerView.setVisibility(View.VISIBLE);
+        topRatedMoviesRecyclerView.setVisibility(View.VISIBLE);
     }
 }

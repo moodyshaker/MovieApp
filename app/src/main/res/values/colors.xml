@@ -53,6 +53,9 @@
     <color name="white">#ffffff</color>
     <color name="white_trans">#4Dffffff</color>
     <color name="black">#000000</color>
+    <color name="delete_red">#CF0000</color>
+    <color name="seen_green">#38970B</color>
+    <color name="wish_red">#FF0000</color>
 
     <color name="gray_50">#FAFAFA</color>
     <color name="gray_100">#F5F5F5</color>

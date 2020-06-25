@@ -1,5 +1,6 @@
 package com.example.MovieDB.ui.activity;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +40,9 @@ import com.example.MovieDB.model.movie.Movies;
 import com.example.MovieDB.model.movie_trailer.MovieTrailer;
 import com.example.MovieDB.model.person.PersonCast;
 import com.example.MovieDB.model.reviews.Reviews;
+import com.example.MovieDB.persistance.database.entity.MovieEntity;
+import com.example.MovieDB.persistance.database.roomdb.DatabaseRepository;
+import com.example.MovieDB.persistance.sharedpreferences.MovieSharedPreference;
 import com.example.MovieDB.presenter.KeywordPresenter;
 import com.example.MovieDB.presenter.MovieCreditsPresenter;
 import com.example.MovieDB.presenter.RecommendationsPresenter;
@@ -57,8 +61,14 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 public class MovieDetails extends AppCompatActivity implements MovieKeywordContract, TrailerContract, CreditContract, SimilarMoviesContract, RecommendationsMoviesContract, ReviewContract, KeywordAdapter.OnMovieKeywordClickListener<Keyword> {
     private Movies movie;
+    private static final String TAG = "TAG";
     private Bundle bundle;
     ProgressBar rateProgressbar;
     private ImageView movieSmallIcon, seenlistIcon, wishlistIcon;
@@ -90,6 +100,8 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
     private YouTubePlayerView view;
     private YouTubePlayer player;
     private ProgressDialog dialog;
+    private DatabaseRepository repository;
+    private MovieSharedPreference.UserPreferences userPreferences;
 
     @Override
     protected void onStart() {
@@ -107,6 +119,7 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
         }
     }
 
+    @SuppressLint("CheckResult")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -175,33 +188,128 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
                 });
             }
         }
+        userPreferences = MovieSharedPreference.UserPreferences.getUserPreference(context);
+        repository = DatabaseRepository.getRepo(context);
         wishlistContainer.setOnClickListener(click -> {
+            MovieEntity entity = MovieEntity.getMovieEntity(movie, userPreferences.getID());
             if (wishlistContainer.getBackground().getConstantState() == getResources().getDrawable(R.drawable.wishlist_background).getConstantState()) {
                 Toast.makeText(context, "item added to Wishlist", Toast.LENGTH_SHORT).show();
                 wishlistContainer.setBackgroundResource(R.drawable.wishlist_background_fill);
                 wishlistIcon.setImageResource(R.drawable.favourite_white);
                 wishlistText.setTextColor(getResources().getColor(R.color.white));
+                repository.getMovieById(entity.getMovie_id())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new SingleObserver<MovieEntity>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onSuccess(MovieEntity entity) {
+                                repository.setMovieToWish(entity.getMovie_id());
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                repository.addMovie(entity);
+                                repository.setMovieToWish(entity.getMovie_id());
+                            }
+                        });
             } else {
                 Toast.makeText(context, "item removed from Wishlist", Toast.LENGTH_SHORT).show();
                 wishlistContainer.setBackgroundResource(R.drawable.wishlist_background);
                 wishlistIcon.setImageResource(R.drawable.whishlist_heart);
                 wishlistText.setTextColor(getResources().getColor(R.color.wishlist_color));
+                repository.deleteWishMovie(entity.getMovie_id());
             }
         });
 
         seenlistContianer.setOnClickListener(click -> {
+            MovieEntity entity = MovieEntity.getMovieEntity(movie, userPreferences.getID());
             if (seenlistContianer.getBackground().getConstantState() == getResources().getDrawable(R.drawable.seenlist_background).getConstantState()) {
                 Toast.makeText(context, "item added to Seenlist", Toast.LENGTH_SHORT).show();
                 seenlistContianer.setBackgroundResource(R.drawable.seenlist_background_fill);
                 seenlistIcon.setImageResource(R.drawable.eye_white);
                 seenlistText.setTextColor(getResources().getColor(R.color.white));
+                repository.getMovieById(entity.getMovie_id())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new SingleObserver<MovieEntity>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(MovieEntity entity) {
+                        repository.setMovieToSeen(entity.getMovie_id());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        repository.addMovie(entity);
+                        repository.setMovieToSeen(entity.getMovie_id());
+                    }
+                });
             } else {
                 Toast.makeText(context, "item removed from Seenlist", Toast.LENGTH_SHORT).show();
                 seenlistContianer.setBackgroundResource(R.drawable.seenlist_background);
                 seenlistIcon.setImageResource(R.drawable.seenlist_eye);
                 seenlistText.setTextColor(getResources().getColor(R.color.seenlist_color));
+                repository.deleteSeenMovie(entity.getMovie_id());
             }
         });
+        repository.getWishMovie(movie.getId()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<MovieEntity>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onSuccess(MovieEntity entity) {
+                if (entity != null) {
+                    wishlistContainer.setBackgroundResource(R.drawable.wishlist_background_fill);
+                    wishlistIcon.setImageResource(R.drawable.favourite_white);
+                    wishlistText.setTextColor(getResources().getColor(R.color.white));
+                } else {
+                    wishlistContainer.setBackgroundResource(R.drawable.wishlist_background);
+                    wishlistIcon.setImageResource(R.drawable.whishlist_heart);
+                    wishlistText.setTextColor(getResources().getColor(R.color.wishlist_color));
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        });
+        repository.getSeenMovie(movie.getId()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<MovieEntity>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onSuccess(MovieEntity entity) {
+                if (entity != null) {
+                    seenlistContianer.setBackgroundResource(R.drawable.seenlist_background_fill);
+                    seenlistIcon.setImageResource(R.drawable.eye_white);
+                    seenlistText.setTextColor(getResources().getColor(R.color.white));
+                } else {
+                    seenlistContianer.setBackgroundResource(R.drawable.seenlist_background);
+                    seenlistIcon.setImageResource(R.drawable.seenlist_eye);
+                    seenlistText.setTextColor(getResources().getColor(R.color.seenlist_color));
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        });
+
         recommendationRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -210,7 +318,7 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
                 int totalItems = manager.getItemCount();
                 int totalVisibleItems = manager.getChildCount();
                 int currentItem = manager.findFirstVisibleItemPosition();
-                if ((totalItems-4) <= (totalVisibleItems + currentItem)) {
+                if ((totalItems - 4) <= (totalVisibleItems + currentItem)) {
                     if (!isLoadingReco) {
                         isLoadingReco = true;
                         recoPresenter.increasePages();
@@ -229,7 +337,7 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
                 int totalVisibleItems = manager.getChildCount();
                 int currentItem = manager.findFirstVisibleItemPosition();
                 Log.e("123", "visibleItems:- " + String.valueOf(totalVisibleItems) + " currentItemPosition:- " + String.valueOf(currentItem) + " totalItems:- " + String.valueOf(totalItems));
-                if ((totalItems-4) <= (totalVisibleItems + currentItem)) {
+                if ((totalItems - 4) <= (totalVisibleItems + currentItem)) {
                     if (!isLoadingSim) {
                         isLoadingSim = true;
                         similarPresenter.increasePages();

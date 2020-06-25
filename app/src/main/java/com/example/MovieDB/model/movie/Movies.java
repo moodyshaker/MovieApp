@@ -50,6 +50,10 @@ public class Movies implements Serializable {
     @Expose
     private String releaseDate;
 
+    private int seen = 0;
+
+    private int wish = 0;
+
     public Integer getVoteCount() {
         return voteCount;
     }
@@ -160,5 +164,21 @@ public class Movies implements Serializable {
 
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public int getSeen() {
+        return seen;
+    }
+
+    public void setSeen(int seen) {
+        this.seen = seen;
+    }
+
+    public int getWish() {
+        return wish;
+    }
+
+    public void setWish(int wish) {
+        this.wish = wish;
     }
 }

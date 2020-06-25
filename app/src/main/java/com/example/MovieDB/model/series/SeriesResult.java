@@ -47,6 +47,10 @@ public class SeriesResult implements Serializable {
     @Expose
     private String posterPath;
 
+    private int seen = 0;
+
+    private int wish = 0;
+
     public String getOriginalName() {
         return originalName;
     }
@@ -149,5 +153,21 @@ public class SeriesResult implements Serializable {
 
     public void setPosterPath(String posterPath) {
         this.posterPath = posterPath;
+    }
+
+    public int getSeen() {
+        return seen;
+    }
+
+    public void setSeen(int seen) {
+        this.seen = seen;
+    }
+
+    public int getWish() {
+        return wish;
+    }
+
+    public void setWish(int wish) {
+        this.wish = wish;
     }
 }

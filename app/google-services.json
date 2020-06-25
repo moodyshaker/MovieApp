@@ -52,11 +52,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "120292167821-3845ma6145cj1d3sh805qhsg57egg6n5.apps.googleusercontent.com",
+          "client_id": "120292167821-opv25bogp0a0g1iu1erdsdu5gsitjhe4.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.MovieDB",
-            "certificate_hash": "e68dfa52121664b89ff8edea05858a95307eb19d"
+            "certificate_hash": "dab4e210b7af3972fb39174e5c114a1ce3150bb9"
           }
         },
         {
@@ -89,11 +89,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "120292167821-37k4nbrgefjhetpdl7eob9si06fuhjm6.apps.googleusercontent.com",
+          "client_id": "120292167821-i151r6j1q9f16qf14o3rmpouqe7lgit5.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.mercado",
-            "certificate_hash": "e68dfa52121664b89ff8edea05858a95307eb19d"
+            "certificate_hash": "dab4e210b7af3972fb39174e5c114a1ce3150bb9"
           }
         },
         {
@@ -163,11 +163,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "120292167821-d50s21inar8ho4kaaik2gprlmap75d3r.apps.googleusercontent.com",
+          "client_id": "120292167821-mrc8kjemdjshadipog4vrpk6puflbchn.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.todo_list",
-            "certificate_hash": "e68dfa52121664b89ff8edea05858a95307eb19d"
+            "certificate_hash": "dab4e210b7af3972fb39174e5c114a1ce3150bb9"
           }
         },
         {

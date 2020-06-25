@@ -19,6 +19,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.MovieDB.R;
+import com.example.MovieDB.ui.fragment.TopRatedMovies;
+import com.example.MovieDB.ui.fragment.TopRatedSeries;
 import com.google.android.material.tabs.TabLayout;
 
 public class TopRated_Movies_TVShows extends NavigationViewActivity implements TabLayout.OnTabSelectedListener {

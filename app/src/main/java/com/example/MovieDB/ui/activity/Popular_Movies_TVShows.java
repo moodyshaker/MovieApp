@@ -19,6 +19,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.MovieDB.R;
+import com.example.MovieDB.ui.fragment.PopularMovies;
+import com.example.MovieDB.ui.fragment.PopularSeries;
 import com.google.android.material.tabs.TabLayout;
 
 public class Popular_Movies_TVShows extends NavigationViewActivity implements TabLayout.OnTabSelectedListener {
