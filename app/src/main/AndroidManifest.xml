@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".MovieApp"
@@ -17,35 +18,40 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".ui.activity.SignUp"
+            android:hardwareAccelerated="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.Settings"
+            android:hardwareAccelerated="true"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".ui.activity.EpisodeDetails"
             android:hardwareAccelerated="true"
             android:screenOrientation="portrait"
-            android:theme="@style/DetailsTheme"
-            tools:ignore="LockedOrientationActivity" />
+            android:theme="@style/DetailsTheme" />
         <activity
             android:name=".ui.activity.SeasonDetails"
             android:hardwareAccelerated="true"
             android:screenOrientation="portrait"
-            android:theme="@style/DetailsTheme"
-            tools:ignore="LockedOrientationActivity" />
+            android:theme="@style/DetailsTheme" />
         <activity
             android:name=".ui.activity.SeriesDetails"
             android:hardwareAccelerated="true"
             android:screenOrientation="portrait"
-            android:theme="@style/DetailsTheme"
-            tools:ignore="LockedOrientationActivity" />
+            android:theme="@style/DetailsTheme" />
         <activity
             android:name=".ui.activity.LoginActivty"
             android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.Search"
             android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/DetailsTheme"
-            tools:ignore="LockedOrientationActivity" />
-        <activity android:name=".ui.activity.Seenlist" />
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.Seenlist"
+            android:hardwareAccelerated="true"
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -79,65 +85,53 @@
         <activity
             android:name=".ui.activity.NowPlaying_OnTheAir"
             android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.TopRated_Movies_TVShows"
             android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.Upcoming"
             android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.Popular_Movies_TVShows"
             android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.Wishlist"
             android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.NearBy"
             android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.Profile"
             android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.AboutApp"
             android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.ActorActivity"
             android:hardwareAccelerated="true"
             android:screenOrientation="portrait"
-            android:theme="@style/DetailsTheme"
-            tools:ignore="LockedOrientationActivity" />
+            android:theme="@style/DetailsTheme" />
         <activity
             android:name=".ui.activity.ReviewActivity"
             android:hardwareAccelerated="true"
             android:screenOrientation="portrait"
-            android:theme="@style/DetailsTheme"
-            tools:ignore="LockedOrientationActivity" />
+            android:theme="@style/DetailsTheme" />
         <activity
             android:name=".ui.activity.NavigationViewActivity"
             android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.Splash"
             android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -148,8 +142,7 @@
             android:name=".ui.activity.MovieDetails"
             android:hardwareAccelerated="true"
             android:screenOrientation="portrait"
-            android:theme="@style/DetailsTheme"
-            tools:ignore="LockedOrientationActivity" />
+            android:theme="@style/DetailsTheme" />
     </application>
 
 </manifest>

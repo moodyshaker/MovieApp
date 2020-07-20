@@ -167,11 +167,13 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
 
                             @Override
                             public void onSuccess(SeriesEntity seriesEntity) {
+                                Log.e(TAG, "onSuccess: ");
                                 repository.setSeriesToWish(seriesEntity.getSeries_id());
                             }
 
                             @Override
                             public void onError(Throwable e) {
+                                Log.e(TAG, "onError: " + e.getMessage());
                                 repository.addSeries(entity);
                                 repository.setSeriesToWish(entity.getSeries_id());
                             }
@@ -299,7 +301,6 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
                 int totalItems = manager.getItemCount();
                 int totalVisibleItems = manager.getChildCount();
                 int currentItem = manager.findFirstVisibleItemPosition();
-                Log.e("123", "visibleItems:- " + String.valueOf(totalVisibleItems) + " currentItemPosition:- " + String.valueOf(currentItem) + " totalItems:- " + String.valueOf(totalItems));
                 if ((totalVisibleItems + currentItem) >= totalItems) {
                     if (!isLoadingSim) {
                         isLoadingSim = true;

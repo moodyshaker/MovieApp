@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#546E7A</color>
-    <color name="colorPrimaryDark">#455A64</color>
+    <color name="colorPrimaryDark">#263238</color>
     <color name="colorAccent">#607D8B</color>
 
     <color name="blue_gray_50">#ECEFF1</color>
@@ -15,7 +15,7 @@
     <color name="blue_gray_700_trans">#4D455A64</color>
     <color name="blue_gray_800">#37474F</color>
     <color name="blue_gray_900">#263238</color>
-
+    <color name="blue">#1565C0</color>
 
     <color name="purple_900">#4A148C</color>
     <color name="purple_900_trans">#4D4A148C</color>

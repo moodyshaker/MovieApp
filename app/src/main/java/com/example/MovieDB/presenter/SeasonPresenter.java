@@ -1,7 +1,5 @@
 package com.example.MovieDB.presenter;
 
-import android.util.Log;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -23,7 +21,6 @@ public class SeasonPresenter {
 
     public void getSeason(int id, int seasonNumber) {
         String url = EndPoints.SERIES_BASE_URL + id + EndPoints.SEASON + seasonNumber + "?" + EndPoints.API_KEY;
-        Log.e("season", url);
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder().setLenient().create();
             SeasonDetailsModel season = gson.fromJson(response, SeasonDetailsModel.class);

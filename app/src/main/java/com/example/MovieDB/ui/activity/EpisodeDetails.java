@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -138,7 +137,6 @@ public class EpisodeDetails extends AppCompatActivity implements Recommendations
                 int totalItems = manager.getItemCount();
                 int totalVisibleItems = manager.getChildCount();
                 int currentItem = manager.findFirstVisibleItemPosition();
-                Log.e("123", "visibleItems:- " + String.valueOf(totalVisibleItems) + " currentItemPosition:- " + String.valueOf(currentItem) + " totalItems:- " + String.valueOf(totalItems));
                 if ((totalVisibleItems + currentItem) >= totalItems) {
                     if (!isLoadingSim) {
                         isLoadingSim = true;

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -336,7 +335,6 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
                 int totalItems = manager.getItemCount();
                 int totalVisibleItems = manager.getChildCount();
                 int currentItem = manager.findFirstVisibleItemPosition();
-                Log.e("123", "visibleItems:- " + String.valueOf(totalVisibleItems) + " currentItemPosition:- " + String.valueOf(currentItem) + " totalItems:- " + String.valueOf(totalItems));
                 if ((totalItems - 4) <= (totalVisibleItems + currentItem)) {
                     if (!isLoadingSim) {
                         isLoadingSim = true;
@@ -563,21 +561,18 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
     public void trailers(List<MovieTrailer> trailer) {
         if (trailer.size() > 0) {
             String videoId = trailer.get(0).getKey();
-            Log.e("life", "first " + videoId);
             initializeYouTube(videoId);
         }
     }
 
     private void initializeYouTube(String videoId) {
         getLifecycle().addObserver(view);
-        Log.e("life", "second " + videoId);
         view.getYouTubePlayerWhenReady(youTubePlayer -> {
             player = youTubePlayer;
             YouTubePlayerUtils.loadOrCueVideo(youTubePlayer,
                     getLifecycle(),
                     videoId,
                     0f);
-            Log.e("life", "third " + videoId);
             appBarLayout.addOnOffsetChangedListener((appBarLayout, i) -> {
                 if (i == 0) {
                     youTubePlayer.play();

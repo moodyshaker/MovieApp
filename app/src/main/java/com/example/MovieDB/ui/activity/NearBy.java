@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,8 +31,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class NearBy extends NavigationViewActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, LocationListener {
-
+public class NearBy extends NavigationViewActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback{
+    private static final String TAG = "TAG";
     Context context = this;
     Activity activity = this;
     FrameLayout frameLayout;
@@ -126,12 +125,13 @@ public class NearBy extends NavigationViewActivity implements OnMapReadyCallback
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 googleMap.clear();
-                Location location = locationResult.getLastLocation();
-                Log.e("location", location.toString());
+                location = locationResult.getLastLocation();
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                googleMap.addMarker(new MarkerOptions().title("My Location")
-                        .position(latLng));
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+//                googleMap.addMarker(new MarkerOptions().title("My Location")
+//                        .position(latLng));
+//                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+                Log.d(TAG, "onLocationResult: " + googleMap.getCameraPosition().target.latitude);
+                Log.d(TAG, "onLocationResult: " + googleMap.getCameraPosition().target.longitude);
             }
         };
     }
@@ -148,26 +148,5 @@ public class NearBy extends NavigationViewActivity implements OnMapReadyCallback
         } else {
             Toast.makeText(context, "Please open your GPS first", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        this.location = location;
-
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
     }
 }

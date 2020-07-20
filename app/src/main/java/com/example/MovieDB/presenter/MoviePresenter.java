@@ -50,7 +50,6 @@ public class MoviePresenter {
         }
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         String url = EndPoints.MOVIE_BASE_URL + TYPE + EndPoints.API_KEY + EndPoints.PAGES + String.valueOf(page);
-        Log.e("movie", url);
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()

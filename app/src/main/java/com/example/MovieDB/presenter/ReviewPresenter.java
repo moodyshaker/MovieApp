@@ -1,7 +1,5 @@
 package com.example.MovieDB.presenter;
 
-import android.util.Log;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -24,7 +22,6 @@ public class ReviewPresenter {
 
     public void getMovieReviews(int id) {
         String url = EndPoints.MOVIE_BASE_URL + id + EndPoints.REVIEWS + EndPoints.API_KEY;
-        Log.e("review", url);
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()
@@ -41,7 +38,6 @@ public class ReviewPresenter {
 
     public void getSeriesReviews(int id) {
         String url = EndPoints.SERIES_BASE_URL + id + EndPoints.REVIEWS + EndPoints.API_KEY;
-        Log.e("review", url);
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()

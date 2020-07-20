@@ -1,7 +1,5 @@
 package com.example.MovieDB.presenter;
 
-import android.util.Log;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -60,7 +58,6 @@ public class MovieSearchPresenter {
                 break;
         }
         String url = EndPoints.SEARCH_BASE_URL + TYPE + EndPoints.API_KEY + EndPoints.PAGES + String.valueOf(pages) + EndPoints.YEAR + year + EndPoints.QUERY + query;
-        Log.e("search", url);
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()

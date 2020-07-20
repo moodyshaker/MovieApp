@@ -31,7 +31,6 @@ public class KeywordPresenter {
 
     public void getMovieKeyword(int id) {
         String url = EndPoints.MOVIE_BASE_URL + id + EndPoints.KEYWORDS + EndPoints.API_KEY;
-        Log.e("keyword", url);
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()
@@ -45,7 +44,6 @@ public class KeywordPresenter {
 
     public void getSeriesKeyword(int id) {
         String url = EndPoints.SERIES_BASE_URL + id + EndPoints.KEYWORDS + EndPoints.API_KEY;
-        Log.e("keyword", url);
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()

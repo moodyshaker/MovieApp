@@ -7,21 +7,21 @@
     android:orientation="vertical"
     tools:context="com.example.MovieDB.ui.activity.Seenlist">
 
+    <include layout="@layout/toolbar_layout" />
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/seenlist_tab_layout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@color/white"
         app:tabBackground="@drawable/series_movies_tablayout"
-        app:tabTextColor="@color/white"
-        app:tabSelectedTextColor="@color/gray_900"
         app:tabIndicatorColor="@null"
-        />
+        app:tabSelectedTextColor="@color/gray_900"
+        app:tabTextColor="@color/white" />
 
     <FrameLayout
         android:id="@+id/seenlist_framelayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+        android:layout_height="match_parent" />
 
 </LinearLayout>

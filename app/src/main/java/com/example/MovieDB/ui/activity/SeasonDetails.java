@@ -128,7 +128,6 @@ public class SeasonDetails extends AppCompatActivity implements RecommendationsS
                 int totalItems = manager.getItemCount();
                 int totalVisibleItems = manager.getChildCount();
                 int currentItem = manager.findFirstVisibleItemPosition();
-                Log.e("123", "visibleItems:- " + String.valueOf(totalVisibleItems) + " currentItemPosition:- " + String.valueOf(currentItem) + " totalItems:- " + String.valueOf(totalItems));
                 if ((totalVisibleItems + currentItem) >= totalItems) {
                     if (!isLoadingSim) {
                         isLoadingSim = true;

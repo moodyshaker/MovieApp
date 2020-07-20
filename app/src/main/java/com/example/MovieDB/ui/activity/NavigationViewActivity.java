@@ -32,7 +32,7 @@ public class NavigationViewActivity extends AppCompatActivity implements Navigat
     private TextView title;
     private Intent i;
         private View headerView;
-    private TextView username, userEmail;
+    private TextView username;
     private ImageView userIcon;
     private MovieSharedPreference.UserPreferences userPreferences;
 
@@ -58,12 +58,10 @@ public class NavigationViewActivity extends AppCompatActivity implements Navigat
         userPreferences = MovieSharedPreference.UserPreferences.getUserPreference(context);
         headerView = navigationView.getHeaderView(0);
         username = headerView.findViewById(R.id.username);
-        userEmail = headerView.findViewById(R.id.user_email);
         userIcon = headerView.findViewById(R.id.user_icon);
         if (!userPreferences.getID().isEmpty()) {
             Picasso.get().load(userPreferences.getImage()).into(userIcon);
             username.setText(userPreferences.getUsername());
-            userEmail.setText(userPreferences.getEmail());
         }
         headerView.setOnClickListener(click -> {
             Intent i = new Intent(context, Profile.class);
@@ -109,23 +107,13 @@ public class NavigationViewActivity extends AppCompatActivity implements Navigat
                 i.putExtra("title", menuItem.getTitle());
                 startActivity(i);
                 break;
-            case R.id.profile:
-                i = new Intent(context, Profile.class);
-                i.putExtra("title", menuItem.getTitle());
-                startActivity(i);
-                break;
             case R.id.near_by:
                 i = new Intent(context, NearBy.class);
                 i.putExtra("title", menuItem.getTitle());
                 startActivity(i);
                 break;
-            case R.id.wishList:
-                i = new Intent(context, Wishlist.class);
-                i.putExtra("title", menuItem.getTitle());
-                startActivity(i);
-                break;
-            case R.id.seenlist:
-                i = new Intent(context, Seenlist.class);
+            case R.id.settings:
+                i = new Intent(context, Settings.class);
                 i.putExtra("title", menuItem.getTitle());
                 startActivity(i);
                 break;
@@ -139,23 +127,18 @@ public class NavigationViewActivity extends AppCompatActivity implements Navigat
     private void setNavigationItemChecked() {
         if (context.getClass().equals(NowPlaying_OnTheAir.class)) {
             navigationView.setCheckedItem(R.id.now_playing);
-            title.setText("Hello");
         } else if (context.getClass().equals(Popular_Movies_TVShows.class)) {
             navigationView.setCheckedItem(R.id.popular);
         } else if (context.getClass().equals(Upcoming.class)) {
             navigationView.setCheckedItem(R.id.upcoming);
         } else if (context.getClass().equals(TopRated_Movies_TVShows.class)) {
             navigationView.setCheckedItem(R.id.top_rated);
-        } else if (context.getClass().equals(Profile.class)) {
-            navigationView.setCheckedItem(R.id.profile);
         } else if (context.getClass().equals(AboutApp.class)) {
             navigationView.setCheckedItem(R.id.about_app);
         } else if (context.getClass().equals(NearBy.class)) {
             navigationView.setCheckedItem(R.id.near_by);
-        } else if (context.getClass().equals(Wishlist.class)) {
-            navigationView.setCheckedItem(R.id.wishList);
-        } else if (context.getClass().equals(Seenlist.class)) {
-            navigationView.setCheckedItem(R.id.seenlist);
+        }else if (context.getClass().equals(Settings.class)) {
+            navigationView.setCheckedItem(R.id.settings);
         }
     }
 }

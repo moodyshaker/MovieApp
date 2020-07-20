@@ -1,7 +1,5 @@
 package com.example.MovieDB.presenter;
 
-import android.util.Log;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -13,8 +11,8 @@ import com.example.MovieDB.contract.PersonImageContract;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.example.MovieDB.model.images_models.EpisodeImage;
 import com.example.MovieDB.model.images_models.MovieImage;
-import com.example.MovieDB.model.images_models.SeriesImage;
 import com.example.MovieDB.model.images_models.PersonImage;
+import com.example.MovieDB.model.images_models.SeriesImage;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -33,7 +31,6 @@ public class ImagesPresenter {
 
     public void getPersonImages(int id) {
         String url = EndPoints.PERSON_BASE_URL + id + EndPoints.IMAGES + EndPoints.API_KEY;
-        Log.e("image", url);
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()
@@ -48,7 +45,6 @@ public class ImagesPresenter {
 
     public void getMovieImages(int id) {
         String url = EndPoints.MOVIE_BASE_URL + id + EndPoints.IMAGES + EndPoints.API_KEY;
-        Log.e("image", url);
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()
@@ -63,7 +59,6 @@ public class ImagesPresenter {
 
     public void getSeriesImages(int id) {
         String url = EndPoints.SERIES_BASE_URL + id + EndPoints.IMAGES + EndPoints.API_KEY;
-        Log.e("image", url);
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()
@@ -78,7 +73,6 @@ public class ImagesPresenter {
 
     public void getSeasonImages(int id, int seasonNumber) {
         String url = EndPoints.SERIES_BASE_URL + id + EndPoints.SEASON + seasonNumber + EndPoints.IMAGES + EndPoints.API_KEY;
-        Log.e("image", url);
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()
@@ -93,7 +87,6 @@ public class ImagesPresenter {
 
     public void getEpisodeImages(int id, int seasonNumber, int episodeNumber) {
         String url = EndPoints.SERIES_BASE_URL + id + EndPoints.SEASON + seasonNumber + EndPoints.EPISODE + episodeNumber + EndPoints.IMAGES + EndPoints.API_KEY;
-        Log.e("image", url);
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()

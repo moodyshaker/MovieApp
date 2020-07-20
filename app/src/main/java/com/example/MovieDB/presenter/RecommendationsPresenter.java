@@ -1,7 +1,5 @@
 package com.example.MovieDB.presenter;
 
-import android.util.Log;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -10,9 +8,9 @@ import com.example.MovieDB.MovieApp;
 import com.example.MovieDB.R;
 import com.example.MovieDB.contract.RecommendationsMoviesContract;
 import com.example.MovieDB.contract.RecommendationsSeriesContract;
+import com.example.MovieDB.endpoints.EndPoints;
 import com.example.MovieDB.model.movie.MovieResponse;
 import com.example.MovieDB.model.movie.Movies;
-import com.example.MovieDB.endpoints.EndPoints;
 import com.example.MovieDB.model.series.Series;
 import com.example.MovieDB.model.series.SeriesResult;
 import com.google.gson.Gson;
@@ -41,7 +39,6 @@ public class RecommendationsPresenter {
         this.id = id;
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         String url = EndPoints.MOVIE_BASE_URL + id + EndPoints.RECOMMENDATIONS + EndPoints.API_KEY + EndPoints.PAGES + String.valueOf(page);
-        Log.e("recommendation", url.toString());
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()
@@ -58,7 +55,6 @@ public class RecommendationsPresenter {
         this.id = id;
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         String url = EndPoints.SERIES_BASE_URL + id + EndPoints.RECOMMENDATIONS + EndPoints.API_KEY + EndPoints.PAGES + String.valueOf(page);
-        Log.e("recommendation", url.toString());
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()

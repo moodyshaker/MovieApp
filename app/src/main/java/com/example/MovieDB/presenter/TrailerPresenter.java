@@ -1,7 +1,5 @@
 package com.example.MovieDB.presenter;
 
-import android.util.Log;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -24,7 +22,6 @@ public class TrailerPresenter {
 
     public void getMovieTrailers(int movieId) {
         String url = EndPoints.MOVIE_BASE_URL + movieId + EndPoints.VIDEOS + EndPoints.API_KEY;
-        Log.e("trailer", url.toString());
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder().setLenient().create();
             Trailers trailers = gson.fromJson(response, Trailers.class);
@@ -36,7 +33,6 @@ public class TrailerPresenter {
 
     public void getSeriesTrailers(int seriesId) {
         String url = EndPoints.SERIES_BASE_URL + seriesId + EndPoints.VIDEOS + EndPoints.API_KEY;
-        Log.e("trailer", url.toString());
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder().setLenient().create();
             Trailers trailers = gson.fromJson(response, Trailers.class);
@@ -48,7 +44,6 @@ public class TrailerPresenter {
 
     public void getSeasonTrailers(int id, int seasonNumber) {
         String url = EndPoints.SERIES_BASE_URL + id + EndPoints.SEASON + seasonNumber + EndPoints.VIDEOS + EndPoints.API_KEY;
-        Log.e("trailer", url.toString());
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()
@@ -63,7 +58,6 @@ public class TrailerPresenter {
 
     public void getEpisodeTrailers(int id, int seasonNumber, int episodeNumber) {
         String url = EndPoints.SERIES_BASE_URL + id + EndPoints.SEASON + seasonNumber + EndPoints.EPISODE + episodeNumber + EndPoints.VIDEOS + EndPoints.API_KEY;
-        Log.e("trailer", url.toString());
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()

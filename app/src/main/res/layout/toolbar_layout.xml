@@ -24,7 +24,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="3"
                 android:gravity="center"
-                android:textColor="@color/blue_gray_100"
+                android:textColor="@color/white"
                 android:textSize="20sp" />
 
             <ImageView

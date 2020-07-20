@@ -1,7 +1,5 @@
 package com.example.MovieDB.presenter;
 
-import android.util.Log;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -42,7 +40,6 @@ public class SimilarPresenter {
         this.id = id;
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         String url = EndPoints.MOVIE_BASE_URL + id + EndPoints.SIMILAR + EndPoints.API_KEY + EndPoints.PAGES + String.valueOf(page);
-        Log.e("similar", url.toString());
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()
@@ -59,7 +56,6 @@ public class SimilarPresenter {
         this.id = id;
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         String url = EndPoints.SERIES_BASE_URL + id + EndPoints.SIMILAR + EndPoints.API_KEY + EndPoints.PAGES + String.valueOf(page);
-        Log.e("similar", url.toString());
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder()
                     .setLenient()

@@ -1,12 +1,17 @@
 package com.example.MovieDB.ui.fragment;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,6 +47,7 @@ public class SeenlistMovie extends Fragment implements Observer<List<MovieEntity
     private SeenWishAdapter<MovieEntity> adapter;
     private DatabaseRepository repository;
     private MovieSharedPreference.UserPreferences userPref;
+    private List<MovieEntity> movieEntities;
 
     @Nullable
     @Override
@@ -52,6 +58,7 @@ public class SeenlistMovie extends Fragment implements Observer<List<MovieEntity
     }
 
     private void initUi(View v) {
+        setHasOptionsMenu(true);
         seenlistMovieRV = v.findViewById(R.id.seenlist_movie_rv);
         userPref = MovieSharedPreference.UserPreferences.getUserPreference(getActivity());
         seenlistMovieRV.setLayoutManager(new GridLayoutManager(getActivity(), 2));
@@ -68,6 +75,7 @@ public class SeenlistMovie extends Fragment implements Observer<List<MovieEntity
 
     @Override
     public void onNext(List<MovieEntity> entity) {
+        this.movieEntities = entity;
         adapter = new SeenWishAdapter<>(getActivity(), entity);
         adapter.setOnMoreListener(this);
         seenlistMovieRV.setAdapter(adapter);
@@ -104,15 +112,20 @@ public class SeenlistMovie extends Fragment implements Observer<List<MovieEntity
         dateTV.setText(finalDate);
         Picasso.get().load(EndPoints.Image200W + movie.getPosterPath()).into(image);
         List<BSDObject> list = new ArrayList<>();
-        list.add(new BSDObject("Delete", R.drawable.ic_baseline_delete_24, R.color.delete_red));
-        list.add(new BSDObject("Add To WishList", R.drawable.ic_baseline_favorite_24, R.color.wish_red));
+        list.add(new BSDObject("Add to wishlist", R.drawable.ic_baseline_favorite_24, R.color.wish_red));
+        list.add(new BSDObject("Remove from seenlist", R.drawable.ic_outline_remove_red_eye_24, R.color.seen_green));
+        list.add(new BSDObject("Delete movie from seen and wish", R.drawable.ic_baseline_delete_24, R.color.delete_red));
+
         listView.setAdapter(new BottomSheetAdapter(getActivity(), list));
         listView.setOnItemClickListener((parent, view, position, id) -> {
             if (position == 0) {
-                repository.deleteSeenMovie(movie.getMovie_id());
+                repository.setMovieToWish(movie.getMovie_id());
                 d.dismiss();
             } else if (position == 1) {
-                repository.setMovieToWish(movie.getMovie_id());
+                repository.deleteSeenMovie(movie.getMovie_id());
+                d.dismiss();
+            } else if (position == 2) {
+                repository.deleteMovie(movie.getMovie_id());
                 d.dismiss();
             }
         });
@@ -122,5 +135,41 @@ public class SeenlistMovie extends Fragment implements Observer<List<MovieEntity
     @Override
     public void onMoreClickItem(MovieEntity object) {
         showBottomDialog(object);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.clear();
+        inflater.inflate(R.menu.delete_all_items, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.delete_all_items) {
+            deleteAllDialog();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void deleteAllDialog() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        dialog.setTitle("Delete All");
+        dialog.setIcon(R.drawable.movie_icon);
+        dialog.setMessage("Do you want to delete all items ?");
+        dialog.setPositiveButton("Yes", (dialog1, which) -> {
+            if (movieEntities.size() > 0) {
+                repository.deleteAllSeenMovies();
+            } else {
+                Toast.makeText(getActivity(), "There is nothing to delete", Toast.LENGTH_SHORT).show();
+            }
+        });
+        dialog.setNegativeButton("No", (dialog1, which) -> {
+
+        });
+        dialog.setCancelable(false);
+        dialog.show();
     }
 }

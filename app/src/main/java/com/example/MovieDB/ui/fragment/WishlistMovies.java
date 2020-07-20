@@ -1,13 +1,18 @@
 package com.example.MovieDB.ui.fragment;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,6 +48,7 @@ public class WishlistMovies extends Fragment implements Observer<List<MovieEntit
     private SeenWishAdapter<MovieEntity> adapter;
     private DatabaseRepository repository;
     private MovieSharedPreference.UserPreferences userPref;
+    private List<MovieEntity> movieEntities;
 
     @Nullable
     @Override
@@ -53,6 +59,7 @@ public class WishlistMovies extends Fragment implements Observer<List<MovieEntit
     }
 
     private void initUi(View v) {
+        setHasOptionsMenu(true);
         wishlistMoviesRV = v.findViewById(R.id.wishlist_movie_rv);
         userPref = MovieSharedPreference.UserPreferences.getUserPreference(getActivity());
         wishlistMoviesRV.setLayoutManager(new GridLayoutManager(getActivity(), 2));
@@ -70,6 +77,7 @@ public class WishlistMovies extends Fragment implements Observer<List<MovieEntit
 
     @Override
     public void onNext(List<MovieEntity> movieEntities) {
+        this.movieEntities = movieEntities;
         adapter = new SeenWishAdapter<>(getActivity(), movieEntities);
         adapter.setOnMoreListener(this);
         wishlistMoviesRV.setAdapter(adapter);
@@ -94,8 +102,10 @@ public class WishlistMovies extends Fragment implements Observer<List<MovieEntit
         ListView listView = d.findViewById(R.id.list_view_bottom_sheet);
         TextView name = d.findViewById(R.id.bottom_dialog_name);
         TextView dateTV = d.findViewById(R.id.bottom_dialog_date);
+        TextView overview = d.findViewById(R.id.bottom_dialog_overview);
         ImageView image = d.findViewById(R.id.bottom_dialog_image);
         name.setText(movie.getTitle());
+        overview.setText(movie.getOverview());
         try {
             date = new SimpleDateFormat("yyyy-MM-dd").parse(movie.getReleaseDate());
         } catch (ParseException e) {
@@ -106,15 +116,19 @@ public class WishlistMovies extends Fragment implements Observer<List<MovieEntit
         dateTV.setText(finalDate);
         Picasso.get().load(EndPoints.Image200W + movie.getPosterPath()).into(image);
         List<BSDObject> list = new ArrayList<>();
-        list.add(new BSDObject("Delete", R.drawable.ic_baseline_delete_24, R.color.delete_red));
-        list.add(new BSDObject("Add To SeenList", R.drawable.ic_baseline_remove_red_eye_24, R.color.seen_green));
+        list.add(new BSDObject("Add to seenlist", R.drawable.ic_baseline_remove_red_eye_24, R.color.seen_green));
+        list.add(new BSDObject("Remove from wishlist", R.drawable.ic_baseline_favorite_border_24, R.color.wish_red));
+        list.add(new BSDObject("Delete movie from seen and wish", R.drawable.ic_baseline_delete_24, R.color.delete_red));
         listView.setAdapter(new BottomSheetAdapter(getActivity(), list));
         listView.setOnItemClickListener((parent, view, position, id) -> {
             if (position == 0) {
-                repository.deleteWishMovie(movie.getMovie_id());
+                repository.setMovieToSeen(movie.getMovie_id());
                 d.dismiss();
             } else if (position == 1) {
-                repository.setMovieToSeen(movie.getMovie_id());
+                repository.deleteWishMovie(movie.getMovie_id());
+                d.dismiss();
+            } else if (position == 2) {
+                repository.deleteMovie(movie.getMovie_id());
                 d.dismiss();
             }
         });
@@ -124,5 +138,41 @@ public class WishlistMovies extends Fragment implements Observer<List<MovieEntit
     @Override
     public void onMoreClickItem(MovieEntity movie) {
         showBottomDialog(movie);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.clear();
+        inflater.inflate(R.menu.delete_all_items, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.delete_all_items) {
+            deleteAllDialog();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void deleteAllDialog() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        dialog.setTitle("Delete All");
+        dialog.setIcon(R.drawable.movie_icon);
+        dialog.setMessage("Do you want to delete all items ?");
+        dialog.setPositiveButton("Yes", (dialog1, which) -> {
+            if (movieEntities.size() > 0) {
+                repository.deleteAllWishMovies();
+            } else {
+                Toast.makeText(getActivity(), "There is nothing to delete", Toast.LENGTH_SHORT).show();
+            }
+        });
+        dialog.setNegativeButton("No", (dialog1, which) -> {
+
+        });
+        dialog.setCancelable(false);
+        dialog.show();
     }
 }

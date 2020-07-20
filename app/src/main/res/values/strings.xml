@@ -11,7 +11,7 @@
     <string name="settings">Settings</string>
     <string name="movieImageDetails">Profile</string>
     <string name="about_app">About App</string>
-    <string name="for_you">For You</string>
+    <string name="more">More</string>
     <string name="wishlist">Whishlist</string>
     <string name="seenlist">Seenlist</string>
     <string name="near_by">Nearby</string>
@@ -23,4 +23,8 @@
     <string name="toolbar_home_icon">Home</string>
     <string name="actor_age_text">(<xliff:g>%d</xliff:g>)</string>
     <string name="home">Home</string>
+    <string name="delete_all">Delete All</string>
+    <string name="profile_name">Hello, <xliff:g>%s</xliff:g></string>
+    <string name="account_exist">Have an account <u><b>Sing in</b></u></string>
+    <string name="new_account"><u><b>Create new account</b></u></string>
 </resources>

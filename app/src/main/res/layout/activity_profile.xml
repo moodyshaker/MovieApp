@@ -6,6 +6,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <include layout="@layout/toolbar_layout" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="215dp"
@@ -19,7 +21,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="130dp"
+                android:layout_height="140dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -42,9 +44,9 @@
 
             <LinearLayout
                 android:id="@+id/name_mail_container"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_weight="4"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="8dp"
                 android:gravity="center"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -72,14 +74,14 @@
             </LinearLayout>
 
             <androidx.cardview.widget.CardView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginTop="10dp"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="40dp"
-                app:layout_constraintBottom_toTopOf="@id/name_mail_container"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                app:cardCornerRadius="50dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent">
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.4">
 
                 <ImageView
                     android:id="@+id/user_picture"
@@ -104,8 +106,65 @@
     <com.google.android.gms.common.SignInButton
         android:id="@+id/google_sign_in"
         android:layout_width="316dp"
-        android:layout_marginTop="30dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <Button
+            android:id="@+id/change_password"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/change_password_button"
+            android:padding="8dp"
+            android:text="Change Password"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/update_account"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/update_button"
+            android:padding="8dp"
+            android:text="Update Account"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/sign_out"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/sign_out_button"
+        android:padding="8dp"
+        android:layout_margin="8dp"
+        android:layout_gravity="center_horizontal"
+        android:text="Logout"
+        android:textColor="@color/black"
+        android:textSize="14sp" />
+
+
+    <Button
+        android:id="@+id/delete_account"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/delete_button"
+        android:padding="8dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="8dp"
+        android:text="Delete Account"
+        android:textColor="@color/white"
+        android:textSize="14sp" />
 </LinearLayout>

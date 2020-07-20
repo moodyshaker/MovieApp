@@ -70,26 +70,38 @@ public class DatabaseRepository {
         return dao.getSeriesById(id);
     }
 
-    public void DeleteAllWishMovies() {
+    public void deleteAllWishMovies() {
         Completable.fromRunnable(() -> dao.deleteAllWishMovies())
                 .subscribeOn(Schedulers.io())
                 .subscribe();
     }
 
-    public void DeleteAllSeenMovies() {
+    public void deleteAllSeenMovies() {
         Completable.fromRunnable(() -> dao.deleteAllSeenMovies())
                 .subscribeOn(Schedulers.io())
                 .subscribe();
     }
 
-    public void DeleteAllWishSeries() {
+    public void deleteAllWishSeries() {
         Completable.fromRunnable(() -> dao.deleteAllWishSeries())
                 .subscribeOn(Schedulers.io())
                 .subscribe();
     }
 
-    public void DeleteAllSeenSeries() {
+    public void deleteAllSeenSeries() {
         Completable.fromRunnable(() -> dao.deleteAllSeenSeries())
+                .subscribeOn(Schedulers.io())
+                .subscribe();
+    }
+
+    public void deleteMovie(int id) {
+        Completable.fromRunnable(() -> dao.deleteMovie(id))
+                .subscribeOn(Schedulers.io())
+                .subscribe();
+    }
+
+    public void deleteSeries(int id) {
+        Completable.fromRunnable(() -> dao.deleteSeries(id))
                 .subscribeOn(Schedulers.io())
                 .subscribe();
     }

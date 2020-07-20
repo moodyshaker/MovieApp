@@ -1,20 +1,22 @@
 package com.example.MovieDB.ui.activity;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -23,7 +25,7 @@ import com.example.MovieDB.ui.fragment.WishlistMovies;
 import com.example.MovieDB.ui.fragment.WishlistSeries;
 import com.google.android.material.tabs.TabLayout;
 
-public class Wishlist extends NavigationViewActivity implements TabLayout.OnTabSelectedListener {
+public class Wishlist extends AppCompatActivity implements TabLayout.OnTabSelectedListener {
 
     private Context context = this;
     private FrameLayout frameLayout, innerFrameLayout;
@@ -33,19 +35,23 @@ public class Wishlist extends NavigationViewActivity implements TabLayout.OnTabS
     private ImageView searchIcon;
     private FragmentManager manager;
     private FragmentTransaction transaction;
+    private ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View contentView = inflater.inflate(R.layout.activity_wishlist, null, false);
-        frameLayout = drawerLayout.findViewById(R.id.frame_layout_holder);
+        setContentView(R.layout.activity_wishlist);
         toolbar = findViewById(R.id.toolbar);
         title = toolbar.findViewById(R.id.title);
+        setSupportActionBar(toolbar);
+        actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
         searchIcon = toolbar.findViewById(R.id.search_icon);
-        wishListtabLayout = contentView.findViewById(R.id.wishlist_tab_layout);
-        innerFrameLayout = contentView.findViewById(R.id.wishList_framelayout);
-        frameLayout.addView(contentView);
+        wishListtabLayout = findViewById(R.id.wishlist_tab_layout);
+        innerFrameLayout = findViewById(R.id.wishList_framelayout);
         searchIcon.setVisibility(View.VISIBLE);
         searchIcon.setOnClickListener(click -> {
             Intent i = new Intent(context, Search.class);
@@ -104,30 +110,20 @@ public class Wishlist extends NavigationViewActivity implements TabLayout.OnTabS
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawers();
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
             return true;
         }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            exitDialog();
+            onBackPressed();
             return true;
         }
         return super.onKeyDown(keyCode, event);
-    }
-
-    private void exitDialog() {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-        dialog.setTitle("Exit");
-        dialog.setIcon(R.drawable.movie_icon);
-        dialog.setMessage("Do you want to exit ?");
-        dialog.setPositiveButton("Yes", (dialog1, which) -> {
-            finishAffinity();
-        });
-        dialog.setNegativeButton("No", (dialog1, which) -> {
-
-        });
-        dialog.setCancelable(false);
-        dialog.show();
     }
 }

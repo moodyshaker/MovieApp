@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -225,7 +224,6 @@ public class ActorActivity extends AppCompatActivity implements PersonImageContr
             actorDate.setText(finalDate);
             year = Calendar.getInstance().get(Calendar.YEAR);
             int realAge = year - realActorYear;
-            Log.e("birthday", realAge + "");
             actorAge.setText(getResources().getString(R.string.actor_age_text, realAge));
         } else {
             dateContainer.setVisibility(View.GONE);
@@ -246,7 +244,6 @@ public class ActorActivity extends AppCompatActivity implements PersonImageContr
 
     @Override
     public void personImageListener(List<PersonImageDetails> movieImageDetails) {
-        Log.e("profiles size", String.valueOf(movieImageDetails.size()));
         imageAdapter = new ImageAdapter<>(this, movieImageDetails);
         personImagesRecyclerView.setAdapter(imageAdapter);
         personImagesRecyclerView.addItemDecoration(new CirclePagerIndicatorDecoration());

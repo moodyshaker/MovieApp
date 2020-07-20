@@ -1,13 +1,17 @@
 package com.example.MovieDB.ui.fragment;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,11 +42,12 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class WishlistSeries extends Fragment implements Observer<List<SeriesEntity>>, SeenWishAdapter.OnMoreListener<SeriesEntity> {
-
+    private static final String TAG = "TAG";
     private RecyclerView wishlistSeriesRV;
     private SeenWishAdapter<SeriesEntity> adapter;
     private DatabaseRepository repository;
     private MovieSharedPreference.UserPreferences userPref;
+    private List<SeriesEntity> seriesEntities;
 
     @Nullable
     @Override
@@ -53,6 +58,7 @@ public class WishlistSeries extends Fragment implements Observer<List<SeriesEnti
     }
 
     private void initUi(View v) {
+        setHasOptionsMenu(true);
         wishlistSeriesRV = v.findViewById(R.id.wishlist_series_rv);
         userPref = MovieSharedPreference.UserPreferences.getUserPreference(getActivity());
         wishlistSeriesRV.setLayoutManager(new GridLayoutManager(getActivity(), 2));
@@ -69,7 +75,7 @@ public class WishlistSeries extends Fragment implements Observer<List<SeriesEnti
 
     @Override
     public void onNext(List<SeriesEntity> seriesEntities) {
-        Log.d("TAG", "onNext: " + seriesEntities.size());
+        this.seriesEntities = seriesEntities;
         adapter = new SeenWishAdapter<>(getActivity(), seriesEntities);
         adapter.setOnMoreListener(this);
         wishlistSeriesRV.setAdapter(adapter);
@@ -77,7 +83,6 @@ public class WishlistSeries extends Fragment implements Observer<List<SeriesEnti
 
     @Override
     public void onError(Throwable e) {
-
     }
 
     @Override
@@ -99,8 +104,10 @@ public class WishlistSeries extends Fragment implements Observer<List<SeriesEnti
         ListView listView = d.findViewById(R.id.list_view_bottom_sheet);
         TextView name = d.findViewById(R.id.bottom_dialog_name);
         TextView dateTV = d.findViewById(R.id.bottom_dialog_date);
+        TextView overview = d.findViewById(R.id.bottom_dialog_overview);
         ImageView image = d.findViewById(R.id.bottom_dialog_image);
         name.setText(series.getName());
+        overview.setText(series.getOverview());
         try {
             date = new SimpleDateFormat("yyyy-MM-dd").parse(series.getFirstAirDate());
         } catch (ParseException e) {
@@ -111,18 +118,60 @@ public class WishlistSeries extends Fragment implements Observer<List<SeriesEnti
         dateTV.setText(finalDate);
         Picasso.get().load(EndPoints.Image200W + series.getPosterPath()).into(image);
         List<BSDObject> list = new ArrayList<>();
-        list.add(new BSDObject("Delete", R.drawable.ic_baseline_delete_24, R.color.delete_red));
-        list.add(new BSDObject("Add To SeenList", R.drawable.ic_baseline_remove_red_eye_24, R.color.seen_green));
+
+        list.add(new BSDObject("Add to Seenlist", R.drawable.ic_baseline_remove_red_eye_24, R.color.seen_green));
+        list.add(new BSDObject("Remove from Wishlist", R.drawable.ic_baseline_favorite_border_24, R.color.wish_red));
+        list.add(new BSDObject("Delete series from seen and wish", R.drawable.ic_baseline_delete_24, R.color.delete_red));
         listView.setAdapter(new BottomSheetAdapter(getActivity(), list));
         listView.setOnItemClickListener((parent, view, position, id) -> {
             if (position == 0) {
-                repository.deleteWishSeries(series.getSeries_id());
+                repository.setSeriesToSeen(series.getSeries_id());
                 d.dismiss();
             } else if (position == 1) {
-                repository.setSeriesToSeen(series.getSeries_id());
+                repository.deleteWishSeries(series.getSeries_id());
+                d.dismiss();
+            } else if (position == 2) {
+                repository.deleteSeries(series.getSeries_id());
                 d.dismiss();
             }
         });
         d.show();
     }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.clear();
+        inflater.inflate(R.menu.delete_all_items, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.delete_all_items) {
+            deleteAllDialog();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void deleteAllDialog() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        dialog.setTitle("Delete All");
+        dialog.setIcon(R.drawable.movie_icon);
+        dialog.setMessage("Do you want to delete all items ?");
+        dialog.setPositiveButton("Yes", (dialog1, which) -> {
+            if(seriesEntities.size() > 0){
+                repository.deleteAllWishSeries();
+            }else{
+                Toast.makeText(getActivity(), "There is nothing to delete", Toast.LENGTH_SHORT).show();
+            }
+        });
+        dialog.setNegativeButton("No", (dialog1, which) -> {
+
+        });
+        dialog.setCancelable(false);
+        dialog.show();
+    }
+
 }

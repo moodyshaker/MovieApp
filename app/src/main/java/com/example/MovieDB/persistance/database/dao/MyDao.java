@@ -74,6 +74,12 @@ public interface MyDao {
     @Query("DELETE FROM series_table WHERE seen == 1")
     void deleteAllSeenSeries();
 
+    @Query("DELETE FROM movie_table WHERE _id_movie = :id")
+    void deleteMovie(int id);
+
+    @Query("DELETE FROM series_table WHERE _id_series = :id")
+    void deleteSeries(int id);
+
     @Query("UPDATE movie_table SET seen = 1 WHERE _id_movie == :id")
     void setMovieToSeen(int id);
 
