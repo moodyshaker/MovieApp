@@ -35,11 +35,7 @@ import com.example.MovieDB.endpoints.AppConstants;
 import com.example.MovieDB.persistance.sharedpreferences.MovieSharedPreference;
 import com.example.MovieDB.receivers.NetworkReceiver;
 import com.example.MovieDB.utils.Utils;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -86,7 +82,6 @@ public class Profile extends AppCompatActivity implements NetworkReceiver.Networ
     private Handler handler;
     private GoogleSignInOptions gso;
     private GoogleSignInClient client;
-    private CallbackManager callbackManager;
     private NetworkReceiver receiver;
     private IntentFilter filter;
     private LinearLayout connectedContainer, disconnectedContainer;
@@ -140,7 +135,6 @@ public class Profile extends AppCompatActivity implements NetworkReceiver.Networ
                 .requestEmail()
                 .build();
         client = GoogleSignIn.getClient(context, gso);
-        callbackManager = CallbackManager.Factory.create();
         if (!userPreferences.getID().isEmpty()) {
             if (!userPreferences.getImage().isEmpty()) {
                 Picasso.get().load(userPreferences.getImage()).into(userIcon);
@@ -271,7 +265,7 @@ public class Profile extends AppCompatActivity implements NetworkReceiver.Networ
         switch (type) {
             case "FACEBOOK":
                 AuthCredential facebookCredential =
-                        FacebookAuthProvider.getCredential(userPreferences.getToken() + "m1,23m12m,3");
+                        FacebookAuthProvider.getCredential(userPreferences.getToken());
                 user.reauthenticate(facebookCredential)
                         .addOnCompleteListener(task -> {
                     Log.d(AppConstants.TAG, "Facebook re-authenticated." + userPreferences.getToken());
@@ -289,8 +283,6 @@ public class Profile extends AppCompatActivity implements NetworkReceiver.Networ
                         }
                     } else {
                         Log.d(AppConstants.TAG, "credentialWithFacebookError: " + task.getException().getMessage());
-                        userPreferences.putActionType(actionType);
-                        signInWithFacebook();
                     }
                 });
                 break;
@@ -501,33 +493,9 @@ public class Profile extends AppCompatActivity implements NetworkReceiver.Networ
         startActivityForResult(signIn, AppConstants.GOOGLE_SING_IN);
     }
 
-    private void signInWithFacebook() {
-        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                String idToken = loginResult.getAccessToken().getToken();
-                Log.d(AppConstants.TAG, "(onSuccess) Token: " + idToken);
-                Log.d(AppConstants.TAG, "Re-Auth From Facbook: " + "action type " + userPreferences.getActionType());
-                userPreferences.putToken(idToken);
-                credentialWithFacebookAndGoogle("FACEBOOK", userPreferences.getActionType(), "", "");
-            }
-
-            @Override
-            public void onCancel() {
-                Log.d(AppConstants.TAG, "onCancel");
-            }
-
-            @Override
-            public void onError(FacebookException exception) {
-                Log.d(AppConstants.TAG, "onError" + exception.getMessage());
-            }
-        });
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
         if (requestCode == AppConstants.GOOGLE_SING_IN && resultCode == RESULT_OK) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
