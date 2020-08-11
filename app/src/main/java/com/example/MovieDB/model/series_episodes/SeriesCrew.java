@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-public class SeriesCrew implements Serializable {
+public class SeriesCrew  {
     @SerializedName("id")
     @Expose
     private Integer id;

@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -91,10 +90,7 @@ public class PopularSeries extends Fragment implements SeriesContract {
         return v;
     }
 
-    @Override
-    public void internetConnectionError(int internetConnectionIcon) {
-        Toast.makeText(getActivity(), "no internet connection", Toast.LENGTH_SHORT).show();
-    }
+
 
     @Override
     public void showLoading() {

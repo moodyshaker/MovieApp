@@ -2,7 +2,6 @@ package com.example.MovieDB.ui.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,7 @@ import com.example.MovieDB.R;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.example.MovieDB.model.credit_search.CreditResult;
 import com.example.MovieDB.ui.activity.ActorActivity;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -52,11 +52,7 @@ public class PersonSearchAdapter extends RecyclerView.Adapter<PersonSearchAdapte
 
     @Override
     public int getItemCount() {
-        if (list != null) {
-            return list.size();
-        } else {
-            return 0;
-        }
+        return list != null ? list.size() : 0;
     }
 
     public class PersonSearchViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -64,12 +60,14 @@ public class PersonSearchAdapter extends RecyclerView.Adapter<PersonSearchAdapte
         ImageView moviePoster;
         TextView movieName;
         CreditResult creditResult;
+        private Gson g;
 
         public PersonSearchViewHolder(View itemView) {
             super(itemView);
             container = itemView.findViewById(R.id.movie_item_container);
             moviePoster = itemView.findViewById(R.id.poster);
             movieName = itemView.findViewById(R.id.name);
+            g = new Gson();
             itemView.setOnClickListener(this);
         }
 
@@ -82,16 +80,15 @@ public class PersonSearchAdapter extends RecyclerView.Adapter<PersonSearchAdapte
 
         @Override
         public void onClick(View v) {
-                if (creditResult.getProfilePath() != null) {
-                    Intent i = new Intent(context, ActorActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("credit_result", creditResult);
-                    i.putExtra("type", "search");
-                    i.putExtras(bundle);
-                    context.startActivity(i);
-                } else {
-                    Toast.makeText(context, "There is n data to display", Toast.LENGTH_SHORT).show();
-                }
+            if (creditResult.getProfilePath() != null) {
+                Intent i = new Intent(context, ActorActivity.class);
+                String creditResultJson = g.toJson(creditResult);
+                i.putExtra("credit_result", creditResultJson);
+                i.putExtra("type", "search");
+                context.startActivity(i);
+            } else {
+                Toast.makeText(context, "There is n data to display", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

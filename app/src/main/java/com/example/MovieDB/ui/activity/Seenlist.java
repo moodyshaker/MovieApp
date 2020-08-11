@@ -1,5 +1,6 @@
 package com.example.MovieDB.ui.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
@@ -28,6 +29,7 @@ import com.google.android.material.tabs.TabLayout;
 public class Seenlist extends NavigationViewActivity implements TabLayout.OnTabSelectedListener {
 
     private Context context = this;
+    private Activity activity = this;
     private FrameLayout innerFrameLayout;
     private TextView title;
     private Toolbar toolbar;

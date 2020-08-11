@@ -6,7 +6,8 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.List;
 
-public class SeriesResult implements Serializable {
+
+public class SeriesResult  {
     @SerializedName("original_name")
     @Expose
     private String originalName;

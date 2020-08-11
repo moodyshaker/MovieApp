@@ -91,10 +91,7 @@ public class PopularMovies extends Fragment implements MovieContract {
         return v;
     }
 
-    @Override
-    public void internetConnectionError(int internetConnectionIcon) {
-        Toast.makeText(getActivity(), "no internet connection", Toast.LENGTH_SHORT).show();
-    }
+
 
     @Override
     public void movieListener(List<Movies> Movies) {

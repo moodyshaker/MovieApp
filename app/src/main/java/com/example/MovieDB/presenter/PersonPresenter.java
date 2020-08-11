@@ -5,7 +5,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
-import com.example.MovieDB.R;
 import com.example.MovieDB.contract.PersonContract;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.example.MovieDB.model.person.Person;
@@ -28,7 +27,7 @@ public class PersonPresenter {
                     .create();
             Person person = gson.fromJson(response, Person.class);
             contract.personListener(person);
-        }, error -> contract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {});
 
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);

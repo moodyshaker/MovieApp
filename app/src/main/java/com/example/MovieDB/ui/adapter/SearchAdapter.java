@@ -2,7 +2,7 @@ package com.example.MovieDB.ui.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +21,7 @@ import com.example.MovieDB.model.movie.Movies;
 import com.example.MovieDB.model.series.SeriesResult;
 import com.example.MovieDB.ui.activity.MovieDetails;
 import com.example.MovieDB.ui.activity.SeriesDetails;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -28,7 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class SearchAdapter<E> extends RecyclerView.Adapter<SearchAdapter.SearchViewHolder> {
+public class SearchAdapter<E> extends RecyclerView.Adapter<SearchAdapter<E>.SearchViewHolder> {
     private Context context;
     private List<E> list;
 
@@ -44,25 +45,23 @@ public class SearchAdapter<E> extends RecyclerView.Adapter<SearchAdapter.SearchV
         return list;
     }
 
+    @NonNull
     @Override
     public SearchViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.movie_item, viewGroup, false);
         return new SearchViewHolder(view);
     }
 
+
     @Override
-    public void onBindViewHolder(@NonNull SearchAdapter.SearchViewHolder holder, int i) {
+    public void onBindViewHolder(@NonNull SearchAdapter<E>.SearchViewHolder holder, int i) {
         E object = list.get(i);
         holder.onBindData(object);
     }
 
     @Override
     public int getItemCount() {
-        if (list != null) {
-            return list.size();
-        } else {
-            return 0;
-        }
+        return list != null ? list.size() : 0;
     }
 
     public class SearchViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -74,6 +73,7 @@ public class SearchAdapter<E> extends RecyclerView.Adapter<SearchAdapter.SearchV
         private Date date;
         private SimpleDateFormat formatter;
         private String finalDate;
+        private Gson g;
 
         public SearchViewHolder(View itemView) {
             super(itemView);
@@ -83,6 +83,7 @@ public class SearchAdapter<E> extends RecyclerView.Adapter<SearchAdapter.SearchV
             releaseDate = itemView.findViewById(R.id.release_date);
             rateText = itemView.findViewById(R.id.rate_number_text);
             rateProgressbar = itemView.findViewById(R.id.rate_progress_bar);
+            g = new Gson();
             itemView.setOnClickListener(this);
         }
 
@@ -91,7 +92,7 @@ public class SearchAdapter<E> extends RecyclerView.Adapter<SearchAdapter.SearchV
             if (object instanceof Movies) {
                 Picasso.get().load(EndPoints.Image500W + ((Movies) object).getPosterPath()).placeholder(R.drawable.baseline_account_circle_white_36).error(R.drawable.cinema).into(moviePoster);
                 movieName.setText(((Movies) object).getTitle());
-                if (!((Movies) object).getReleaseDate().isEmpty()) {
+                if (!TextUtils.isEmpty(((Movies) object).getReleaseDate())) {
                     try {
                         date = new SimpleDateFormat("yyyy-MM-dd").parse(((Movies) object).getReleaseDate());
                     } catch (ParseException e) {
@@ -108,7 +109,7 @@ public class SearchAdapter<E> extends RecyclerView.Adapter<SearchAdapter.SearchV
             } else if (object instanceof SeriesResult) {
                 Picasso.get().load(EndPoints.Image500W + ((SeriesResult) object).getPosterPath()).error(R.drawable.cinema).into(moviePoster);
                 movieName.setText(((SeriesResult) object).getName());
-                if (((SeriesResult) object).getFirstAirDate() != null) {
+                if (!TextUtils.isEmpty(((SeriesResult) object).getFirstAirDate())) {
                     try {
                         date = new SimpleDateFormat("yyyy-MM-dd").parse(((SeriesResult) object).getFirstAirDate());
                     } catch (ParseException e) {
@@ -130,19 +131,17 @@ public class SearchAdapter<E> extends RecyclerView.Adapter<SearchAdapter.SearchV
             if (object instanceof SeriesResult) {
                 if (((SeriesResult) object).getPosterPath() != null) {
                     Intent i = new Intent(context, SeriesDetails.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("series_object", ((SeriesResult) object));
-                    i.putExtras(bundle);
+                    String seriesJson = g.toJson(object);
+                    i.putExtra("series_object", seriesJson);
                     context.startActivity(i);
                 } else {
                     Toast.makeText(context, "There is n data to display", Toast.LENGTH_SHORT).show();
                 }
             } else if (object instanceof Movies) {
                 Intent i = new Intent(context, MovieDetails.class);
-                i.putExtra("type", "one");
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("movie_object", ((Movies) object));
-                i.putExtras(bundle);
+                i.putExtra("type", "two");
+                String movieJson = g.toJson(object);
+                i.putExtra("movie_object", movieJson);
                 context.startActivity(i);
             }
         }

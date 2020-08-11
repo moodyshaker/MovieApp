@@ -1,13 +1,10 @@
 package com.example.MovieDB.presenter;
 
-import android.util.Log;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
-import com.example.MovieDB.R;
 import com.example.MovieDB.contract.MovieKeywordContract;
 import com.example.MovieDB.contract.SeriesKeywordContract;
 import com.example.MovieDB.endpoints.EndPoints;
@@ -37,7 +34,7 @@ public class KeywordPresenter {
                     .create();
             Keywords keywords = gson.fromJson(response, Keywords.class);
             movieKeywordContract.keywordListener(keywords.getKeywords());
-        }, error -> movieKeywordContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {});
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
     }
@@ -50,7 +47,7 @@ public class KeywordPresenter {
                     .create();
             SeriesKeyword keywords = gson.fromJson(response, SeriesKeyword.class);
             seriesKeywordContract.keywordListener(keywords.getResults());
-        }, error -> seriesKeywordContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {});
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
     }

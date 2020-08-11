@@ -1,13 +1,10 @@
 package com.example.MovieDB.presenter;
 
-import android.util.Log;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
-import com.example.MovieDB.R;
 import com.example.MovieDB.contract.MovieContract;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.example.MovieDB.model.movie.MovieResponse;
@@ -65,7 +62,7 @@ public class MoviePresenter {
                 contract.removeLoading();
             }
         },
-                error -> contract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+                error -> {});
         queue.add(request);
     }
 

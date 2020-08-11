@@ -3,10 +3,9 @@ package com.example.MovieDB.model.series_seasons;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class SeasonEpisodes implements Serializable {
+public class SeasonEpisodes  {
     @SerializedName("air_date")
     @Expose
     private String airDate;

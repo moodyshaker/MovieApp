@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".MovieApp"
@@ -18,7 +19,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.activity.SignUp"
+            android:name=".ui.activity.ForgetPassword"
+            android:hardwareAccelerated="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.UpdateAccount"
+            android:hardwareAccelerated="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.Registration"
             android:hardwareAccelerated="true"
             android:screenOrientation="portrait" />
         <activity
@@ -41,7 +50,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/DetailsTheme" />
         <activity
-            android:name=".ui.activity.LoginActivty"
+            android:name=".ui.activity.Login"
             android:hardwareAccelerated="true"
             android:screenOrientation="portrait" />
         <activity
@@ -74,10 +83,6 @@
             </intent-filter>
         </activity>
 
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDRTpmIFSCy7Wgyp-VuZx7MwS-IDb17nZM" />
-
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
@@ -100,10 +105,6 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.Wishlist"
-            android:hardwareAccelerated="true"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.activity.NearBy"
             android:hardwareAccelerated="true"
             android:screenOrientation="portrait" />
         <activity

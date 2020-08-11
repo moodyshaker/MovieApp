@@ -85,7 +85,7 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
                     android:layout_height="160dp"
-                    android:layout_marginRight="6dp"
+                    android:layout_marginEnd="6dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="10dp">
 
@@ -134,7 +134,7 @@
                             android:id="@+id/actor_date_of_birth"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
                             android:gravity="center_vertical"
                             android:text="Born:"
                             android:textColor="@color/grey"
@@ -144,7 +144,7 @@
                             android:id="@+id/actor_age"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
                             android:gravity="center_vertical"
                             android:text="@string/actor_age_text"
                             android:textColor="@color/grey"

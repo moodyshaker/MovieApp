@@ -1,10 +1,13 @@
 package com.example.MovieDB.ui.activity;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PorterDuff;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -41,10 +44,14 @@ import com.example.MovieDB.model.series_episodes.SeriesGuestStar;
 import com.example.MovieDB.presenter.ImagesPresenter;
 import com.example.MovieDB.presenter.PersonCreditsPresenter;
 import com.example.MovieDB.presenter.PersonPresenter;
+import com.example.MovieDB.receivers.NetworkReceiver;
 import com.example.MovieDB.ui.adapter.ImageAdapter;
 import com.example.MovieDB.ui.adapter.PersonCastAdapter;
+import com.example.MovieDB.utils.Utils;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -53,7 +60,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class ActorActivity extends AppCompatActivity implements PersonImageContract, PersonCreditsContract, PersonContract {
+public class ActorActivity extends AppCompatActivity implements PersonImageContract, PersonCreditsContract, PersonContract, NetworkReceiver.NetworkCallbackListener {
 
     private RecyclerView personImagesRecyclerView, knownForRecyclerView;
     private TextView actorName, actorJob, actorOverView, actorDate, title, actorAge;
@@ -75,6 +82,7 @@ public class ActorActivity extends AppCompatActivity implements PersonImageContr
     private int id;
     private ActionBar actionBar;
     private Context context = this;
+    private Activity activity = this;
     private SimpleDateFormat formatter;
     private Date date;
     private String finalDate;
@@ -82,7 +90,14 @@ public class ActorActivity extends AppCompatActivity implements PersonImageContr
     private AppBarLayout appBarLayout;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private int year;
-    private ProgressDialog dialog;
+    private AlertDialog dialog;
+    private Gson g;
+    private String crewJson, castJson, creditResultJson, seriesCrewJson, seriesGuestStarJson;
+    private NetworkReceiver receiver;
+    private IntentFilter filter;
+    private LinearLayout connectedContainer, disconnectedContainer;
+    private BottomSheetDialog connectionDialog;
+    private Handler h;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,15 +110,21 @@ public class ActorActivity extends AppCompatActivity implements PersonImageContr
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.blue_gray_100), PorterDuff.Mode.SRC_ATOP);
+        g = new Gson();
         intent = getIntent();
-        bundle = intent.getExtras();
-        if (bundle != null) {
-            crew = (Crew) bundle.getSerializable("Crew");
-            cast = (Cast) bundle.getSerializable("Cast");
-            creditResult = (CreditResult) bundle.getSerializable("credit_result");
-            seriesCrew = (SeriesCrew) bundle.getSerializable("SeriesCrew");
-            seriesGuestStar = (SeriesGuestStar) bundle.getSerializable("SeriesGuestCrew");
-        }
+        filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        receiver = new NetworkReceiver();
+        receiver.setListener(this);
+        crewJson = intent.getStringExtra("Crew");
+        castJson = intent.getStringExtra("Cast");
+        creditResultJson = intent.getStringExtra("credit_result");
+        seriesCrewJson = intent.getStringExtra("SeriesCrew");
+        seriesGuestStarJson = intent.getStringExtra("SeriesGuestCrew");
+        crew = g.fromJson(crewJson, Crew.class);
+        cast = g.fromJson(castJson, Cast.class);
+        creditResult = g.fromJson(creditResultJson, CreditResult.class);
+        seriesCrew = g.fromJson(seriesCrewJson, SeriesCrew.class);
+        seriesGuestStar = g.fromJson(seriesGuestStarJson, SeriesGuestStar.class);
         if (intent.getStringExtra("type").equals("crew")) {
             id = crew.getId();
         } else if (intent.getStringExtra("type").equals("cast")) {
@@ -126,7 +147,7 @@ public class ActorActivity extends AppCompatActivity implements PersonImageContr
                 } else if (intent.getStringExtra("type").equals("search")) {
                     collapsingToolbarLayout.setTitle("");
                     collapsingToolbarLayout.setCollapsedTitleTextColor(getResources().getColor(R.color.gray_100));
-                }else if (intent.getStringExtra("type").equals("series_crew")) {
+                } else if (intent.getStringExtra("type").equals("series_crew")) {
                     collapsingToolbarLayout.setTitle("");
                     collapsingToolbarLayout.setCollapsedTitleTextColor(getResources().getColor(R.color.gray_100));
                 } else if (intent.getStringExtra("type").equals("series_guest")) {
@@ -142,7 +163,7 @@ public class ActorActivity extends AppCompatActivity implements PersonImageContr
                     collapsingToolbarLayout.setTitle(cast.getName());
                 } else if (intent.getStringExtra("type").equals("search")) {
                     collapsingToolbarLayout.setTitle(creditResult.getName());
-                }else if (intent.getStringExtra("type").equals("series_crew")) {
+                } else if (intent.getStringExtra("type").equals("series_crew")) {
                     collapsingToolbarLayout.setTitle(seriesCrew.getName());
                 } else if (intent.getStringExtra("type").equals("series_guest")) {
                     collapsingToolbarLayout.setTitle(seriesGuestStar.getName());
@@ -161,10 +182,7 @@ public class ActorActivity extends AppCompatActivity implements PersonImageContr
     }
 
     private void initUi() {
-        dialog = new ProgressDialog(context, R.style.AppTheme_Dark_Dialog);
-        dialog.setIndeterminate(true);
-        dialog.setCancelable(false);
-        dialog.setMessage("Loading Data");
+        dialog = Utils.showLoadingDialog(context);
         dialog.show();
         toolbar = findViewById(R.id.toolbar);
         actorName = findViewById(R.id.actor_name);
@@ -178,6 +196,10 @@ public class ActorActivity extends AppCompatActivity implements PersonImageContr
         collapsingToolbarLayout = findViewById(R.id.actor_collapsing_layout);
         appBarLayout = findViewById(R.id.actor_appbar_layout);
         actorAge = findViewById(R.id.actor_age);
+        connectionDialog = Utils.showDisconnectionDialog(context);
+        connectedContainer = connectionDialog.findViewById(R.id.connected_container);
+        disconnectedContainer = connectionDialog.findViewById(R.id.disconnected_container);
+        h = new Handler();
         personImagesRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
         knownForRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
         personImagesRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
@@ -260,11 +282,6 @@ public class ActorActivity extends AppCompatActivity implements PersonImageContr
     }
 
     @Override
-    public void internetConnectionError(int internetConnectionIcon) {
-
-    }
-
-    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
@@ -298,9 +315,16 @@ public class ActorActivity extends AppCompatActivity implements PersonImageContr
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        registerReceiver(receiver, filter);
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         handler.removeCallbacksAndMessages(null);
+        unregisterReceiver(receiver);
     }
 
     @Override
@@ -308,5 +332,18 @@ public class ActorActivity extends AppCompatActivity implements PersonImageContr
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.toolbar_icons, menu);
         return true;
+    }
+
+    @Override
+    public void callbackListener(boolean isConnected) {
+        if (isConnected) {
+            connectedContainer.setVisibility(View.VISIBLE);
+            disconnectedContainer.setVisibility(View.GONE);
+            h.postDelayed(() -> connectionDialog.dismiss(), 1000);
+        } else {
+            connectedContainer.setVisibility(View.GONE);
+            disconnectedContainer.setVisibility(View.VISIBLE);
+            connectionDialog.show();
+        }
     }
 }

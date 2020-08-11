@@ -1,9 +1,13 @@
 package com.example.MovieDB.ui.activity;
 
-import android.app.ProgressDialog;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PorterDuff;
+import android.media.RingtoneManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -43,20 +47,25 @@ import com.example.MovieDB.presenter.MovieCreditsPresenter;
 import com.example.MovieDB.presenter.RecommendationsPresenter;
 import com.example.MovieDB.presenter.SeasonPresenter;
 import com.example.MovieDB.presenter.SimilarPresenter;
-import com.example.MovieDB.ui.adapter.CastAdapter;
+import com.example.MovieDB.receivers.NetworkReceiver;
 import com.example.MovieDB.ui.adapter.ImageAdapter;
 import com.example.MovieDB.ui.adapter.InnerDetailsAdapter;
 import com.example.MovieDB.ui.adapter.SeasonAdapter;
+import com.example.MovieDB.ui.adapter.StarsAdapter;
+import com.example.MovieDB.utils.Utils;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class EpisodeDetails extends AppCompatActivity implements RecommendationsSeriesContract, CreditContract, InnerDetailsAdapter.EpisodeCLickListener, SimilarSeriesContract, SeasonContract, MovieSeriesImageContract, SeasonAdapter.SeasonClickListener {
+public class EpisodeDetails extends AppCompatActivity implements RecommendationsSeriesContract, CreditContract, InnerDetailsAdapter.EpisodeCLickListener, SimilarSeriesContract, SeasonContract, MovieSeriesImageContract, SeasonAdapter.SeasonClickListener, NetworkReceiver.NetworkCallbackListener {
 
     private Context context = this;
-    private Bundle bundle;
+    private Activity activity = this;
+    private Intent i;
     private Toolbar toolbar;
     private SeriesSeasons seasons;
     private SeriesDetailsModel series;
@@ -79,17 +88,27 @@ public class EpisodeDetails extends AppCompatActivity implements Recommendations
     private AppBarLayout appBarLayout;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private ImageAdapter<MovieSeriesImageDetails> imageAdapter;
-    private ProgressDialog dialog;
+    private AlertDialog dialog;
     private ActionBar actionBar;
-    private CastAdapter<Cast> castAdapter;
-    private CastAdapter<Crew> guestStarsAdapter;
+    private StarsAdapter<Cast> castAdapter;
+    private StarsAdapter<Crew> guestStarsAdapter;
     private MovieCreditsPresenter creditsPresenter;
+    private Gson g;
+    private String seasonsJson, seriesJson, episodeJson;
+    private NetworkReceiver receiver;
+    private IntentFilter filter;
+    private LinearLayout connectedContainer, disconnectedContainer;
+    private BottomSheetDialog connectionDialog;
+    private Handler h;
+    RingtoneManager ringtoneManager;
+
 
     @Override
     protected void onStop() {
         super.onStop();
         if (handler != null) {
             handler.removeCallbacksAndMessages(null);
+            unregisterReceiver(receiver);
         }
     }
 
@@ -104,12 +123,17 @@ public class EpisodeDetails extends AppCompatActivity implements Recommendations
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.blue_gray_100), PorterDuff.Mode.SRC_ATOP);
-        bundle = getIntent().getExtras();
-        if (bundle != null) {
-            seasons = (SeriesSeasons) bundle.getSerializable("season_object");
-            series = (SeriesDetailsModel) bundle.getSerializable("series_object");
-            episode = (SeasonEpisodes) bundle.getSerializable("episode_object");
-        }
+        g = new Gson();
+        i = getIntent();
+        filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        receiver = new NetworkReceiver();
+        receiver.setListener(this);
+        seasonsJson = i.getStringExtra("season_object");
+        seriesJson = i.getStringExtra("series_object");
+        episodeJson = i.getStringExtra("episode_object");
+        seasons = g.fromJson(seasonsJson, SeriesSeasons.class);
+        series = g.fromJson(seriesJson, SeriesDetailsModel.class);
+        episode = g.fromJson(episodeJson, SeasonEpisodes.class);
         initPresenterAndRecyclerView();
         recommendationRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -147,24 +171,25 @@ public class EpisodeDetails extends AppCompatActivity implements Recommendations
                 }
             }
         });
-        appBarLayout.addOnOffsetChangedListener((appBarLayout, i) -> {
+        appBarLayout.addOnOffsetChangedListener((appBarLayout, i) ->
+
+        {
             if (i == 0) {
                 collapsingToolbarLayout.setTitle("");
                 collapsingToolbarLayout.setCollapsedTitleTextColor(getResources().getColor(R.color.gray_100));
                 scrollRecycler();
             } else {
                 handler.removeCallbacksAndMessages(null);
-                collapsingToolbarLayout.setTitle(series.getName());
+                collapsingToolbarLayout.setTitle(seasons.getName());
             }
         });
+
         scrollRecycler();
+
     }
 
     private void initView() {
-        dialog = new ProgressDialog(context, R.style.AppTheme_Dark_Dialog);
-        dialog.setIndeterminate(true);
-        dialog.setCancelable(false);
-        dialog.setMessage("Loading Data");
+        dialog = Utils.showLoadingDialog(context);
         dialog.show();
         toolbar = findViewById(R.id.toolbar);
         castContainer = findViewById(R.id.cast_container);
@@ -182,6 +207,10 @@ public class EpisodeDetails extends AppCompatActivity implements Recommendations
         episodeImage = findViewById(R.id.episode_image);
         collapsingToolbarLayout = findViewById(R.id.actor_collapsing_layout);
         appBarLayout = findViewById(R.id.actor_appbar_layout);
+        connectionDialog = Utils.showDisconnectionDialog(context);
+        connectedContainer = connectionDialog.findViewById(R.id.connected_container);
+        disconnectedContainer = connectionDialog.findViewById(R.id.disconnected_container);
+        h = new Handler();
         episodeImagesRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
             public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
@@ -207,11 +236,6 @@ public class EpisodeDetails extends AppCompatActivity implements Recommendations
 
     @Override
     public void removeLoading() {
-
-    }
-
-    @Override
-    public void internetConnectionError(int internetConnectionIcon) {
 
     }
 
@@ -267,15 +291,15 @@ public class EpisodeDetails extends AppCompatActivity implements Recommendations
         Picasso.get().load(EndPoints.Image200W + episode.getStillPath()).into(episodeImage);
         episodeOverview.setText(episode.getOverview());
         seasonPresenter = new SeasonPresenter(this);
-        seasonPresenter.getSeason(series.getId(), seasons.getSeasonNumber());
+        seasonPresenter.getSeason(episode.getShowId(), seasons.getSeasonNumber());
         creditsPresenter = new MovieCreditsPresenter(this);
-        creditsPresenter.getEpisodeCredit(series.getId(), seasons.getSeasonNumber(), episode.getEpisodeNumber());
+        creditsPresenter.getEpisodeCredit(episode.getId(), episode.getSeasonNumber(), episode.getEpisodeNumber());
         recommendationsPresenter = new RecommendationsPresenter(this);
         similarPresenter = new SimilarPresenter(this);
         imagesPresenter = new ImagesPresenter(this);
-        recommendationsPresenter.getSeriesRecommendations(series.getId(), 1);
-        similarPresenter.getSeriesSimilars(series.getId(), 1);
-        imagesPresenter.getEpisodeImages(series.getId(), seasons.getSeasonNumber(), episode.getEpisodeNumber());
+        recommendationsPresenter.getSeriesRecommendations(episode.getShowId(), 1);
+        similarPresenter.getSeriesSimilars(episode.getShowId(), 1);
+        imagesPresenter.getEpisodeImages(episode.getShowId(), episode.getSeasonNumber(), episode.getEpisodeNumber());
         episodeImagesRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
         similarRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
         similarAdapter = new InnerDetailsAdapter<>(context);
@@ -294,19 +318,19 @@ public class EpisodeDetails extends AppCompatActivity implements Recommendations
         seasonAdapter.notifyDataSetChanged();
         castRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
         guestStarsRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
-        castAdapter = new CastAdapter<>(context);
-        guestStarsAdapter = new CastAdapter<>(context);
+        castAdapter = new StarsAdapter<>(context);
+        guestStarsAdapter = new StarsAdapter<>(context);
         castRecyclerView.setAdapter(castAdapter);
         guestStarsRecyclerView.setAdapter(guestStarsAdapter);
     }
 
     @Override
-    public void onSeasonClickListenr(SeriesSeasons season) {
+    public void onSeasonClickListener(SeriesSeasons season) {
         Intent i = new Intent(context, SeasonDetails.class);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("season_object", season);
-        bundle.putSerializable("series_object", series);
-        i.putExtras(bundle);
+        String seasonJson = g.toJson(seasons);
+        String seriesJson = g.toJson(series);
+        i.putExtra("season_object", seasonJson);
+        i.putExtra("series_object", seriesJson);
         startActivity(i);
     }
 
@@ -333,6 +357,7 @@ public class EpisodeDetails extends AppCompatActivity implements Recommendations
     protected void onStart() {
         super.onStart();
         scrollRecycler();
+        registerReceiver(receiver, filter);
     }
 
     @Override
@@ -345,23 +370,37 @@ public class EpisodeDetails extends AppCompatActivity implements Recommendations
     @Override
     public void onEpisodeClickListener(SeasonEpisodes episodes) {
         Intent i = new Intent(context, EpisodeDetails.class);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("season_object", seasons);
-        bundle.putSerializable("series_object", series);
-        bundle.putSerializable("episode_object", episodes);
-        i.putExtras(bundle);
+        String seasonJson = g.toJson(seasons);
+        String seriesJson = g.toJson(series);
+        String episodesJson = g.toJson(episodes);
+        i.putExtra("season_object", seasonJson);
+        i.putExtra("series_object", seriesJson);
+        i.putExtra("episode_object", episodesJson);
         startActivity(i);
     }
 
     @Override
     public void crewListener(List<Crew> crews) {
-        guestStarsAdapter.setCastList(crews);
+        guestStarsAdapter.setStarList(crews);
         guestStarsAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void castListener(List<Cast> casts) {
-        castAdapter.setCastList(casts);
+        castAdapter.setStarList(casts);
         castAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void callbackListener(boolean isConnected) {
+        if (isConnected) {
+            connectedContainer.setVisibility(View.VISIBLE);
+            disconnectedContainer.setVisibility(View.GONE);
+            h.postDelayed(() -> connectionDialog.dismiss(), 1000);
+        } else {
+            connectedContainer.setVisibility(View.GONE);
+            disconnectedContainer.setVisibility(View.VISIBLE);
+            connectionDialog.show();
+        }
     }
 }

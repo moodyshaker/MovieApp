@@ -51,11 +51,7 @@ public class SeasonAdapter extends RecyclerView.Adapter<SeasonAdapter.SimilarVie
 
     @Override
     public int getItemCount() {
-        if (seasons != null) {
-            return seasons.size();
-        } else {
-            return 0;
-        }
+        return seasons != null ? seasons.size() : 0;
     }
 
     public class SimilarViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -99,7 +95,7 @@ public class SeasonAdapter extends RecyclerView.Adapter<SeasonAdapter.SimilarVie
 
         @Override
         public void onClick(View v) {
-            seasonClickListener.onSeasonClickListenr(season);
+            seasonClickListener.onSeasonClickListener(season);
         }
 
         private void setRate(int rateNumber) {
@@ -146,6 +142,6 @@ public class SeasonAdapter extends RecyclerView.Adapter<SeasonAdapter.SimilarVie
     }
 
     public interface SeasonClickListener {
-        void onSeasonClickListenr(SeriesSeasons season);
+        void onSeasonClickListener(SeriesSeasons season);
     }
 }

@@ -1,11 +1,18 @@
 package com.example.MovieDB.ui.activity;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,11 +56,16 @@ import com.example.MovieDB.presenter.RecommendationsPresenter;
 import com.example.MovieDB.presenter.ReviewPresenter;
 import com.example.MovieDB.presenter.SimilarPresenter;
 import com.example.MovieDB.presenter.TrailerPresenter;
-import com.example.MovieDB.ui.adapter.CastAdapter;
+import com.example.MovieDB.receivers.NetworkReceiver;
 import com.example.MovieDB.ui.adapter.InnerDetailsAdapter;
 import com.example.MovieDB.ui.adapter.KeywordAdapter;
+import com.example.MovieDB.ui.adapter.StarsAdapter;
+import com.example.MovieDB.utils.Utils;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.gson.Gson;
+import com.ms.square.android.expandabletextview.ExpandableTextView;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTubePlayerUtils;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
@@ -65,11 +78,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class MovieDetails extends AppCompatActivity implements MovieKeywordContract, TrailerContract, CreditContract, SimilarMoviesContract, RecommendationsMoviesContract, ReviewContract, KeywordAdapter.OnMovieKeywordClickListener<Keyword> {
+public class MovieDetails extends AppCompatActivity implements MovieKeywordContract, TrailerContract, CreditContract, SimilarMoviesContract, RecommendationsMoviesContract, ReviewContract, KeywordAdapter.OnMovieKeywordClickListener<Keyword>, NetworkReceiver.NetworkCallbackListener {
     private Movies movie;
-    private static final String TAG = "TAG";
-    private Bundle bundle;
-    ProgressBar rateProgressbar;
+    private ProgressBar rateProgressbar;
     private ImageView movieSmallIcon, seenlistIcon, wishlistIcon;
     private LinearLayout directorContainer, recommendationContainer, similarContainer, keywordContainer, crewContainer, castContainer, seenlistContianer, wishlistContainer;
     private CollapsingToolbarLayout collapsingToolbarLayout;
@@ -77,11 +88,13 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
     private Toolbar toolbar;
     private ActionBar actionBar;
     private RecyclerView keywordRecyclerView, castRecyclerView, crewRecyclerView, similarRecyclerView, recommendationRecyclerView;
-    private TextView rateNumber, rateCount, reviewCount, overViewContent, directorName, wishlistText, seenlistText;
+    private TextView rateNumber, rateCount, reviewCount, directorName, wishlistText, seenlistText;
+    private ExpandableTextView overViewContent;
     private Context context = this;
+    private Activity activity = this;
     private KeywordAdapter<Keyword> keywordAdapter;
-    private CastAdapter<Cast> castAdapter;
-    private CastAdapter<Crew> crewAdapter;
+    private StarsAdapter<Cast> castAdapter;
+    private StarsAdapter<Crew> crewAdapter;
     private InnerDetailsAdapter<Movies> similarAdapter;
     private ReviewPresenter movieReviewPresenter;
     private TrailerPresenter trailerPresenter;
@@ -98,9 +111,17 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
     private RelativeLayout reviewContainer;
     private YouTubePlayerView view;
     private YouTubePlayer player;
-    private ProgressDialog dialog;
+    private AlertDialog dialog;
     private DatabaseRepository repository;
     private MovieSharedPreference.UserPreferences userPreferences;
+    private Dialog loginDialog;
+    private CardView cancelButton, loginButton;
+    private Gson g;
+    private NetworkReceiver receiver;
+    private IntentFilter filter;
+    private LinearLayout connectedContainer, disconnectedContainer;
+    private BottomSheetDialog connectionDialog;
+    private Handler h;
 
     @Override
     protected void onStart() {
@@ -108,6 +129,7 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
         if (player != null) {
             player.play();
         }
+        registerReceiver(receiver, filter);
     }
 
     @Override
@@ -116,6 +138,7 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
         if (player != null) {
             player.pause();
         }
+        unregisterReceiver(receiver);
     }
 
     @SuppressLint("CheckResult")
@@ -128,7 +151,6 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
         actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-
         }
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.blue_gray_100), PorterDuff.Mode.SRC_ATOP);
         keywordPresenter = new KeywordPresenter(this);
@@ -137,177 +159,143 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
         recoPresenter = new RecommendationsPresenter(this);
         similarPresenter = new SimilarPresenter(this);
         movieReviewPresenter = new ReviewPresenter(this);
+        h = new Handler();
+        g = new Gson();
         intent = getIntent();
+        filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        receiver = new NetworkReceiver();
+        receiver.setListener(this);
         type = intent.getStringExtra("type");
-        bundle = intent.getExtras();
-        if (bundle != null) {
-            if (type.equals("one")) {
-                movie = (Movies) bundle.getSerializable("movie_object");
-                movieReviewPresenter.getMovieReviews(movie.getId());
-                keywordPresenter.getMovieKeyword(movie.getId());
-                movieCreditsPresenter.getMovieCredits(movie.getId());
-                trailerPresenter.getMovieTrailers(movie.getId());
-                similarPresenter.getMovieSimilars(movie.getId(), 1);
-                recoPresenter.getMovieRecommendations(movie.getId(), 1);
-                Picasso.get().load(EndPoints.Image200W + movie.getPosterPath()).error(R.drawable.cinema).into(movieSmallIcon);
-                rateNumber.setText(String.valueOf(movie.getVoteAverage()));
-                setRate(movie.getVoteAverage());
-                rateCount.setText(String.valueOf(movie.getVoteCount()));
-                overViewContent.setText(movie.getOverview());
-                appBarLayout.addOnOffsetChangedListener((appBarLayout, i) -> {
-                    if (i == 0) {
-                        collapsingToolbarLayout.setTitle("");
-                        collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(R.color.blue_gray_100));
-                    } else {
-                        collapsingToolbarLayout.setTitle(movie.getTitle());
-                        collapsingToolbarLayout.setCollapsedTitleTextColor(getResources().getColor(R.color.blue_gray_100));
-                    }
-                });
-            } else if (type.equals("two")) {
-                cast = (PersonCast) bundle.getSerializable("movie_object");
-                appBarLayout.addOnOffsetChangedListener((appBarLayout, i) -> {
-                    if (i == 0) {
-                        collapsingToolbarLayout.setTitle("");
-                        collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(R.color.blue_gray_100));
-                    } else {
-                        collapsingToolbarLayout.setTitle(cast.getTitle());
-                        collapsingToolbarLayout.setCollapsedTitleTextColor(getResources().getColor(R.color.blue_gray_100));
-                    }
-                    movieReviewPresenter.getMovieReviews(cast.getId());
-                    keywordPresenter.getMovieKeyword(cast.getId());
-                    movieCreditsPresenter.getMovieCredits(cast.getId());
-                    trailerPresenter.getMovieTrailers(cast.getId());
-                    similarPresenter.getMovieSimilars(cast.getId(), 1);
-                    recoPresenter.getMovieRecommendations(cast.getId(), 1);
-                    Picasso.get().load(EndPoints.Image200W + cast.getPosterPath()).error(R.drawable.cinema).into(movieSmallIcon);
-                    rateNumber.setText(String.valueOf(cast.getVoteAverage()));
-                    setRate(cast.getVoteAverage());
-                    rateCount.setText(String.valueOf(cast.getVoteCount()));
-                    overViewContent.setText(cast.getOverview());
-                });
-            }
-        }
+        loginDialog = new Dialog(context);
+        loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        loginDialog.setCancelable(false);
+        loginDialog.setContentView(R.layout.sign_in_dialog);
+        cancelButton = loginDialog.findViewById(R.id.cancel_button);
+        loginButton = loginDialog.findViewById(R.id.login_button);
+        cancelButton.setOnClickListener(click -> loginDialog.dismiss());
         userPreferences = MovieSharedPreference.UserPreferences.getUserPreference(context);
         repository = DatabaseRepository.getRepo(context);
-        wishlistContainer.setOnClickListener(click -> {
-            MovieEntity entity = MovieEntity.getMovieEntity(movie, userPreferences.getID());
-            if (wishlistContainer.getBackground().getConstantState() == getResources().getDrawable(R.drawable.wishlist_background).getConstantState()) {
-                Toast.makeText(context, "item added to Wishlist", Toast.LENGTH_SHORT).show();
-                wishlistContainer.setBackgroundResource(R.drawable.wishlist_background_fill);
-                wishlistIcon.setImageResource(R.drawable.favourite_white);
-                wishlistText.setTextColor(getResources().getColor(R.color.white));
-                repository.getMovieById(entity.getMovie_id())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new SingleObserver<MovieEntity>() {
-                            @Override
-                            public void onSubscribe(Disposable d) {
-
-                            }
-
-                            @Override
-                            public void onSuccess(MovieEntity entity) {
-                                repository.setMovieToWish(entity.getMovie_id());
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                repository.addMovie(entity);
-                                repository.setMovieToWish(entity.getMovie_id());
-                            }
-                        });
-            } else {
-                Toast.makeText(context, "item removed from Wishlist", Toast.LENGTH_SHORT).show();
-                wishlistContainer.setBackgroundResource(R.drawable.wishlist_background);
-                wishlistIcon.setImageResource(R.drawable.whishlist_heart);
-                wishlistText.setTextColor(getResources().getColor(R.color.wishlist_color));
-                repository.deleteWishMovie(entity.getMovie_id());
-            }
-        });
-
-        seenlistContianer.setOnClickListener(click -> {
-            MovieEntity entity = MovieEntity.getMovieEntity(movie, userPreferences.getID());
-            if (seenlistContianer.getBackground().getConstantState() == getResources().getDrawable(R.drawable.seenlist_background).getConstantState()) {
-                Toast.makeText(context, "item added to Seenlist", Toast.LENGTH_SHORT).show();
-                seenlistContianer.setBackgroundResource(R.drawable.seenlist_background_fill);
-                seenlistIcon.setImageResource(R.drawable.eye_white);
-                seenlistText.setTextColor(getResources().getColor(R.color.white));
-                repository.getMovieById(entity.getMovie_id())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new SingleObserver<MovieEntity>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onSuccess(MovieEntity entity) {
-                        repository.setMovieToSeen(entity.getMovie_id());
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        repository.addMovie(entity);
-                        repository.setMovieToSeen(entity.getMovie_id());
-                    }
-                });
-            } else {
-                Toast.makeText(context, "item removed from Seenlist", Toast.LENGTH_SHORT).show();
-                seenlistContianer.setBackgroundResource(R.drawable.seenlist_background);
-                seenlistIcon.setImageResource(R.drawable.seenlist_eye);
-                seenlistText.setTextColor(getResources().getColor(R.color.seenlist_color));
-                repository.deleteSeenMovie(entity.getMovie_id());
-            }
-        });
-        repository.getWishMovie(movie.getId()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<MovieEntity>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-
-            }
-
-            @Override
-            public void onSuccess(MovieEntity entity) {
-                if (entity != null) {
-                    wishlistContainer.setBackgroundResource(R.drawable.wishlist_background_fill);
-                    wishlistIcon.setImageResource(R.drawable.favourite_white);
-                    wishlistText.setTextColor(getResources().getColor(R.color.white));
+        keywordRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
+        keywordAdapter = new KeywordAdapter<>(context, this);
+        keywordRecyclerView.setAdapter(keywordAdapter);
+        similarRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
+        similarAdapter = new InnerDetailsAdapter<>(context);
+        similarRecyclerView.setAdapter(similarAdapter);
+        recommendationRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
+        recommendation = new InnerDetailsAdapter<>(context);
+        recommendationRecyclerView.setAdapter(recommendation);
+        crewRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
+        castRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
+        crewAdapter = new StarsAdapter<>(context);
+        castAdapter = new StarsAdapter<>(context);
+        crewRecyclerView.setAdapter(crewAdapter);
+        castRecyclerView.setAdapter(castAdapter);
+        if (type.equals("one")) {
+            String movieJson = intent.getStringExtra("movie_object");
+            cast = g.fromJson(movieJson, PersonCast.class);
+            appBarLayout.addOnOffsetChangedListener((appBarLayout, i) -> {
+                if (i == 0) {
+                    collapsingToolbarLayout.setTitle("");
+                    collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(R.color.blue_gray_100));
                 } else {
-                    wishlistContainer.setBackgroundResource(R.drawable.wishlist_background);
-                    wishlistIcon.setImageResource(R.drawable.whishlist_heart);
-                    wishlistText.setTextColor(getResources().getColor(R.color.wishlist_color));
+                    collapsingToolbarLayout.setTitle(cast.getTitle());
+                    collapsingToolbarLayout.setCollapsedTitleTextColor(getResources().getColor(R.color.blue_gray_100));
+                }
+                movieReviewPresenter.getMovieReviews(cast.getId());
+                keywordPresenter.getMovieKeyword(cast.getId());
+                movieCreditsPresenter.getMovieCredits(cast.getId());
+                trailerPresenter.getMovieTrailers(cast.getId());
+                similarPresenter.getMovieSimilars(cast.getId(), 1);
+                recoPresenter.getMovieRecommendations(cast.getId(), 1);
+                Picasso.get().load(EndPoints.Image200W + cast.getPosterPath()).error(R.drawable.cinema).into(movieSmallIcon);
+                rateNumber.setText(String.valueOf(cast.getVoteAverage()));
+                setRate(cast.getVoteAverage());
+                rateCount.setText(String.valueOf(cast.getVoteCount()));
+                overViewContent.setText(cast.getOverview());
+            });
+        } else {
+            String movieJson = intent.getStringExtra("movie_object");
+            movie = g.fromJson(movieJson, Movies.class);
+            movieReviewPresenter.getMovieReviews(movie.getId());
+            keywordPresenter.getMovieKeyword(movie.getId());
+            movieCreditsPresenter.getMovieCredits(movie.getId());
+            trailerPresenter.getMovieTrailers(movie.getId());
+            similarPresenter.getMovieSimilars(movie.getId(), 1);
+            recoPresenter.getMovieRecommendations(movie.getId(), 1);
+            Picasso.get().load(EndPoints.Image200W + movie.getPosterPath()).error(R.drawable.cinema).into(movieSmallIcon);
+            rateNumber.setText(String.valueOf(movie.getVoteAverage()));
+            setRate(movie.getVoteAverage());
+            rateCount.setText(String.valueOf(movie.getVoteCount()));
+            overViewContent.setText(movie.getOverview());
+            appBarLayout.addOnOffsetChangedListener((appBarLayout, i) -> {
+                if (i == 0) {
+                    collapsingToolbarLayout.setTitle("");
+                    collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(R.color.blue_gray_100));
+                } else {
+                    collapsingToolbarLayout.setTitle(movie.getTitle());
+                    collapsingToolbarLayout.setCollapsedTitleTextColor(getResources().getColor(R.color.blue_gray_100));
+                }
+            });
+            if (intent.hasExtra("WHICH")) {
+                if (intent.getStringExtra("WHICH").equals("SEENLIST")) {
+                    seenMoviesClick();
+                } else if (intent.getStringExtra("WHICH").equals("WISHLIST")) {
+                    wishMoviesClick();
                 }
             }
+        }
+        wishlistContainer.setOnClickListener(click -> wishMoviesClick());
+        seenlistContianer.setOnClickListener(click -> seenMoviesClick());
+        if (!userPreferences.isFirstTime()) {
+            repository.getWishMovie(movie.getId()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<MovieEntity>() {
+                @Override
+                public void onSubscribe(Disposable d) {
 
-            @Override
-            public void onError(Throwable e) {
-
-            }
-        });
-        repository.getSeenMovie(movie.getId()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<MovieEntity>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-
-            }
-
-            @Override
-            public void onSuccess(MovieEntity entity) {
-                if (entity != null) {
-                    seenlistContianer.setBackgroundResource(R.drawable.seenlist_background_fill);
-                    seenlistIcon.setImageResource(R.drawable.eye_white);
-                    seenlistText.setTextColor(getResources().getColor(R.color.white));
-                } else {
-                    seenlistContianer.setBackgroundResource(R.drawable.seenlist_background);
-                    seenlistIcon.setImageResource(R.drawable.seenlist_eye);
-                    seenlistText.setTextColor(getResources().getColor(R.color.seenlist_color));
                 }
-            }
 
-            @Override
-            public void onError(Throwable e) {
+                @Override
+                public void onSuccess(MovieEntity entity) {
+                    if (entity != null) {
+                        wishlistContainer.setBackgroundResource(R.drawable.wishlist_background_fill);
+                        wishlistIcon.setImageResource(R.drawable.favourite_white);
+                        wishlistText.setTextColor(getResources().getColor(R.color.white));
+                    } else {
+                        wishlistContainer.setBackgroundResource(R.drawable.wishlist_background);
+                        wishlistIcon.setImageResource(R.drawable.whishlist_heart);
+                        wishlistText.setTextColor(getResources().getColor(R.color.wishlist_color));
+                    }
+                }
 
-            }
-        });
+                @Override
+                public void onError(Throwable e) {
+
+                }
+            });
+            repository.getSeenMovie(movie.getId()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<MovieEntity>() {
+                @Override
+                public void onSubscribe(Disposable d) {
+
+                }
+
+                @Override
+                public void onSuccess(MovieEntity entity) {
+                    if (entity != null) {
+                        seenlistContianer.setBackgroundResource(R.drawable.seenlist_background_fill);
+                        seenlistIcon.setImageResource(R.drawable.eye_white);
+                        seenlistText.setTextColor(getResources().getColor(R.color.white));
+                    } else {
+                        seenlistContianer.setBackgroundResource(R.drawable.seenlist_background);
+                        seenlistIcon.setImageResource(R.drawable.seenlist_eye);
+                        seenlistText.setTextColor(getResources().getColor(R.color.seenlist_color));
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+
+                }
+            });
+        }
 
         recommendationRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -345,21 +333,6 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
                 }
             }
         });
-        keywordRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
-        keywordAdapter = new KeywordAdapter<>(context, this);
-        keywordRecyclerView.setAdapter(keywordAdapter);
-        similarRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
-        similarAdapter = new InnerDetailsAdapter<>(context);
-        similarRecyclerView.setAdapter(similarAdapter);
-        recommendationRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
-        recommendation = new InnerDetailsAdapter<>(context);
-        recommendationRecyclerView.setAdapter(recommendation);
-        castRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
-        castAdapter = new CastAdapter<>(context);
-        castRecyclerView.setAdapter(castAdapter);
-        crewRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
-        crewAdapter = new CastAdapter<>(context);
-        crewRecyclerView.setAdapter(crewAdapter);
     }
 
     @Override
@@ -376,10 +349,7 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
     }
 
     private void initView() {
-        dialog = new ProgressDialog(context, R.style.AppTheme_Dark_Dialog);
-        dialog.setIndeterminate(true);
-        dialog.setCancelable(false);
-        dialog.setMessage("Loading Data");
+        dialog = Utils.showLoadingDialog(context);
         dialog.show();
         collapsingToolbarLayout = findViewById(R.id.collapsing_layout);
         toolbar = findViewById(R.id.movie_details_toolbar);
@@ -410,28 +380,36 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
         seenlistText = findViewById(R.id.seenlist_text);
         wishlistText = findViewById(R.id.wishlist_text);
         view = findViewById(R.id.youtube_player_view);
-    }
-
-    @Override
-    public void crewListener(List<Crew> crews) {
-        if (crews.size() == 0) {
-            crewContainer.setVisibility(View.GONE);
-        }
-        for (Crew c : crews) {
-            if (c.getJob().equals("Director")) {
-                directorContainer.setVisibility(View.VISIBLE);
-                directorName.setText(c.getName());
-            }
-        }
-        crewAdapter.setCastList(crews);
+        connectionDialog = Utils.showDisconnectionDialog(context);
+        connectedContainer = connectionDialog.findViewById(R.id.connected_container);
+        disconnectedContainer = connectionDialog.findViewById(R.id.disconnected_container);
     }
 
     @Override
     public void castListener(List<Cast> casts) {
         if (casts.size() == 0) {
             castContainer.setVisibility(View.GONE);
+        } else {
+            castAdapter.setStarList(casts);
+            castAdapter.notifyDataSetChanged();
+
         }
-        castAdapter.setCastList(casts);
+    }
+
+    @Override
+    public void crewListener(List<Crew> crews) {
+        if (crews.size() == 0) {
+            crewContainer.setVisibility(View.GONE);
+        } else {
+            for (Crew c : crews) {
+                if (c.getJob().equals("Director")) {
+                    directorContainer.setVisibility(View.VISIBLE);
+                    directorName.setText(c.getName());
+                }
+            }
+            crewAdapter.setStarList(crews);
+            crewAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -460,11 +438,6 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
 
     @Override
     public void removeLoading() {
-
-    }
-
-    @Override
-    public void internetConnectionError(int internetConnectionIcon) {
 
     }
 
@@ -588,5 +561,116 @@ public class MovieDetails extends AppCompatActivity implements MovieKeywordContr
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.toolbar_icons, menu);
         return true;
+    }
+
+    private void seenMoviesClick() {
+        if (userPreferences.isFirstTime()) {
+            loginDialog.show();
+            loginButton.setOnClickListener(login -> {
+                Intent i = new Intent(context, Login.class);
+                i.putExtra("FROM_WHERE", "MOVIE_DETAILS");
+                i.putExtra("WHICH", "SEENLIST");
+                String movieJson = g.toJson(movie);
+                i.putExtra("movie_object", movieJson);
+                startActivity(i);
+                finish();
+            });
+        } else {
+            MovieEntity entity = MovieEntity.getMovieEntity(movie, userPreferences.getID());
+            if (seenlistContianer.getBackground().getConstantState() == getResources().getDrawable(R.drawable.seenlist_background).getConstantState()) {
+                Toast.makeText(context, "item added to Seenlist", Toast.LENGTH_SHORT).show();
+                seenlistContianer.setBackgroundResource(R.drawable.seenlist_background_fill);
+                seenlistIcon.setImageResource(R.drawable.eye_white);
+                seenlistText.setTextColor(getResources().getColor(R.color.white));
+                repository.getMovieById(entity.getMovie_id())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new SingleObserver<MovieEntity>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onSuccess(MovieEntity entity) {
+                                repository.setMovieToSeen(entity.getMovie_id());
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                repository.addMovie(entity);
+                                repository.setMovieToSeen(entity.getMovie_id());
+                            }
+                        });
+            } else {
+                Toast.makeText(context, "item removed from Seenlist", Toast.LENGTH_SHORT).show();
+                seenlistContianer.setBackgroundResource(R.drawable.seenlist_background);
+                seenlistIcon.setImageResource(R.drawable.seenlist_eye);
+                seenlistText.setTextColor(getResources().getColor(R.color.seenlist_color));
+                repository.deleteSeenMovie(entity.getMovie_id());
+            }
+        }
+    }
+
+    private void wishMoviesClick() {
+        if (userPreferences.isFirstTime()) {
+            loginDialog.show();
+            loginButton.setOnClickListener(login -> {
+                Intent i = new Intent(context, Login.class);
+                i.putExtra("FROM_WHERE", "MOVIE_DETAILS");
+                i.putExtra("WHICH", "WISHLIST");
+                String movieJson = g.toJson(movie);
+                i.putExtra("movie_object", movieJson);
+                startActivity(i);
+                finish();
+            });
+        } else {
+            MovieEntity entity = MovieEntity.getMovieEntity(movie, userPreferences.getID());
+            if (wishlistContainer.getBackground().getConstantState() == getResources().getDrawable(R.drawable.wishlist_background).getConstantState()) {
+                Toast.makeText(context, "item added to Wishlist", Toast.LENGTH_SHORT).show();
+                wishlistContainer.setBackgroundResource(R.drawable.wishlist_background_fill);
+                wishlistIcon.setImageResource(R.drawable.favourite_white);
+                wishlistText.setTextColor(getResources().getColor(R.color.white));
+                repository.getMovieById(entity.getMovie_id())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new SingleObserver<MovieEntity>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onSuccess(MovieEntity entity) {
+                                repository.setMovieToWish(entity.getMovie_id());
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                repository.addMovie(entity);
+                                repository.setMovieToWish(entity.getMovie_id());
+                            }
+                        });
+            } else {
+                Toast.makeText(context, "item removed from Wishlist", Toast.LENGTH_SHORT).show();
+                wishlistContainer.setBackgroundResource(R.drawable.wishlist_background);
+                wishlistIcon.setImageResource(R.drawable.whishlist_heart);
+                wishlistText.setTextColor(getResources().getColor(R.color.wishlist_color));
+                repository.deleteWishMovie(entity.getMovie_id());
+            }
+        }
+    }
+
+    @Override
+    public void callbackListener(boolean isConnected) {
+        if (isConnected) {
+            connectedContainer.setVisibility(View.VISIBLE);
+            disconnectedContainer.setVisibility(View.GONE);
+            h.postDelayed(() -> connectionDialog.dismiss(), 1000);
+        } else {
+            connectedContainer.setVisibility(View.GONE);
+            disconnectedContainer.setVisibility(View.VISIBLE);
+            connectionDialog.show();
+        }
     }
 }

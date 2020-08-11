@@ -5,7 +5,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
-import com.example.MovieDB.R;
 import com.example.MovieDB.contract.MovieSeriesImageContract;
 import com.example.MovieDB.contract.PersonImageContract;
 import com.example.MovieDB.endpoints.EndPoints;
@@ -37,7 +36,7 @@ public class ImagesPresenter {
                     .create();
             PersonImage personImage = gson.fromJson(response, PersonImage.class);
             personImageContract.personImageListener(personImage.getMovieImageDetails());
-        }, error -> personImageContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {});
 
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
@@ -51,7 +50,7 @@ public class ImagesPresenter {
                     .create();
             MovieImage movieImage = gson.fromJson(response, MovieImage.class);
             movieSeriesImageContract.movieSeriesImageListener(movieImage.getStills());
-        }, error -> movieSeriesImageContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {});
 
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
@@ -65,7 +64,7 @@ public class ImagesPresenter {
                     .create();
             SeriesImage seriesImage = gson.fromJson(response, SeriesImage.class);
             movieSeriesImageContract.movieSeriesImageListener(seriesImage.getStills());
-        }, error -> movieSeriesImageContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {});
 
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
@@ -79,7 +78,7 @@ public class ImagesPresenter {
                     .create();
             SeriesImage seriesImage = gson.fromJson(response, SeriesImage.class);
             movieSeriesImageContract.movieSeriesImageListener(seriesImage.getStills());
-        }, error -> movieSeriesImageContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {});
 
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
@@ -93,7 +92,7 @@ public class ImagesPresenter {
                     .create();
             EpisodeImage episodeImage = gson.fromJson(response, EpisodeImage.class);
             movieSeriesImageContract.movieSeriesImageListener(episodeImage.getStills());
-        }, error -> movieSeriesImageContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {});
 
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);

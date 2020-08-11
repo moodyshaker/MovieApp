@@ -2,7 +2,6 @@ package com.example.MovieDB.ui.fragment;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -85,7 +84,6 @@ public class WishlistMovies extends Fragment implements Observer<List<MovieEntit
 
     @Override
     public void onError(Throwable e) {
-        Log.d("TAG", "onError: " + e.getMessage());
     }
 
     @Override

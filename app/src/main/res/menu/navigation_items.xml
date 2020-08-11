@@ -23,22 +23,12 @@
             android:icon="@drawable/top_rated"
             android:title="@string/top_rated" />
     </group>
-    <item android:title="@string/more">
-        <menu>
-            <group android:id="@+id/group_two">
-                <item
-                    android:id="@+id/near_by"
-                    android:icon="@drawable/outline_track_changes_black_24"
-                    android:title="@string/near_by" />
-                <item
-                    android:id="@+id/about_app"
-                    android:icon="@drawable/outline_info_black_24"
-                    android:title="@string/about_app" />
-                <item
-                    android:id="@+id/settings"
-                    android:icon="@drawable/baseline_settings_black_24"
-                    android:title="@string/settings" />
-            </group>
-        </menu>
-    </item>
+    <group android:id="@+id/group_two">
+        <item
+            android:id="@+id/settings"
+            android:title="@string/settings" />
+        <item
+            android:id="@+id/about_app"
+            android:title="@string/about_app" />
+    </group>
 </menu>

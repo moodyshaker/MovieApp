@@ -51,6 +51,8 @@ public class MovieSharedPreference {
         private final static String IMAGE = "image";
         private final static String ID = "id";
         private final static String TYPE = "type";
+        private final static String ID_TOKEN = "token";
+        private final static String ACTION_TYPE = "action_type";
         private static UserPreferences userPreferences;
         private MovieSharedPreference sInstance;
 
@@ -105,12 +107,24 @@ public class MovieSharedPreference {
             return sInstance.getString(TYPE);
         }
 
+        public void putToken(String value) {
+            sInstance.putString(ID_TOKEN, value);
+        }
+
+        public String getToken() {
+            return sInstance.getString(ID_TOKEN);
+        }
+
+        public void putActionType(String value) {
+            sInstance.putString(ACTION_TYPE, value);
+        }
+
+        public String getActionType() {
+            return sInstance.getString(ACTION_TYPE);
+        }
+
         public boolean isFirstTime() {
-            if (userPreferences.getID().isEmpty()) {
-                return true;
-            } else {
-                return false;
-            }
+            return userPreferences.getID().isEmpty();
         }
 
         public void logOut() {

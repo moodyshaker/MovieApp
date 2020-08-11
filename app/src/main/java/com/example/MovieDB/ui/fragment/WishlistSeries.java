@@ -42,7 +42,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class WishlistSeries extends Fragment implements Observer<List<SeriesEntity>>, SeenWishAdapter.OnMoreListener<SeriesEntity> {
-    private static final String TAG = "TAG";
     private RecyclerView wishlistSeriesRV;
     private SeenWishAdapter<SeriesEntity> adapter;
     private DatabaseRepository repository;

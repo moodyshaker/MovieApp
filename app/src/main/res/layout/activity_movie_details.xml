@@ -28,8 +28,8 @@
                 android:id="@+id/youtube_player_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_collapseMode="parallax"
                 android:fitsSystemWindows="true"
+                app:layout_collapseMode="parallax"
                 app:showFullScreenButton="false"
                 app:showYouTubeButton="false" />
 
@@ -179,9 +179,9 @@
                                 android:id="@+id/seenlist_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
-                                android:layout_marginRight="8dp"
+                                android:layout_marginEnd="8dp"
                                 android:gravity="center_vertical"
-                                android:text="Seenlist"
+                                android:text="@string/seenlist"
                                 android:textColor="@color/seenlist_color"
                                 android:textSize="18sp" />
 
@@ -191,7 +191,7 @@
                             android:id="@+id/wishlist_container"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="8dp"
+                            android:layout_marginStart="8dp"
                             android:background="@drawable/wishlist_background"
                             android:gravity="center"
                             android:orientation="horizontal"
@@ -207,9 +207,9 @@
                                 android:id="@+id/wishlist_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
-                                android:layout_marginRight="8dp"
+                                android:layout_marginEnd="8dp"
                                 android:gravity="center_vertical"
-                                android:text="Wishlist"
+                                android:text="@string/wishlist"
                                 android:textColor="@color/wishlist_color"
                                 android:textSize="18sp" />
 
@@ -227,13 +227,13 @@
                 android:focusable="true"
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <TextView
                     android:id="@+id/review_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center_vertical"
                     android:textColor="@color/blue_gray_400"
@@ -243,11 +243,10 @@
                 <ImageView
                     android:layout_width="28dp"
                     android:layout_height="28dp"
-                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:layout_gravity="end"
-                    android:backgroundTint="@android:color/darker_gray"
-                    app:srcCompat="@drawable/ic_keyboard_arrow_right_black_24dp" />
+                    android:layout_gravity="end|center_vertical"
+                    app:srcCompat="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
             </RelativeLayout>
 
@@ -261,19 +260,33 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
-                    android:text="Overview"
+                    android:text="@string/overview"
                     android:textColor="@color/blue_gray_400"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <TextView
+                <com.ms.square.android.expandabletextview.ExpandableTextView xmlns:expandableTextView="http://schemas.android.com/apk/res-auto"
                     android:id="@+id/over_view_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Content"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp" />
+                    expandableTextView:animDuration="200"
+                    expandableTextView:maxCollapsedLines="3">
 
+                    <TextView
+                        android:id="@id/expandable_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/white"
+                        android:textSize="14sp" />
+
+                    <ImageButton
+                        android:id="@id/expand_collapse"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right|bottom"
+                        android:background="@android:color/transparent"
+                        android:padding="16dp" />
+                </com.ms.square.android.expandabletextview.ExpandableTextView>
             </LinearLayout>
 
             <LinearLayout
@@ -287,7 +300,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Keywords"
+                    android:text="@string/keywords"
                     android:textColor="@color/blue_gray_400"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -310,7 +323,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Casts"
+                    android:text="@string/casts"
                     android:textColor="@color/blue_gray_400"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -333,7 +346,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Crew"
+                    android:text="@string/crew"
                     android:textColor="@color/blue_gray_400"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -350,7 +363,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Director:"
+                        android:text="@string/director"
                         android:textColor="@color/blue_gray_400"
                         android:textSize="16sp"
                         android:textStyle="bold" />
@@ -359,8 +372,8 @@
                         android:id="@+id/director_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="4dp"
-                        android:text="Stephen John"
+                        android:layout_marginStart="4dp"
+                        android:text="@string/stephen_john"
                         android:textColor="@color/white"
                         android:textSize="16sp"
                         android:textStyle="bold" />
@@ -385,7 +398,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Recommendation Movies"
+                    android:text="@string/recommendation_movies"
                     android:textColor="@color/blue_gray_400"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -408,7 +421,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Similar Movies"
+                    android:text="@string/similar_movies"
                     android:textColor="@color/blue_gray_400"
                     android:textSize="16sp"
                     android:textStyle="bold" />

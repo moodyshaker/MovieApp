@@ -1,10 +1,14 @@
 package com.example.MovieDB.ui.activity;
 
-import android.app.AlertDialog;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.GradientDrawable;
+import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,28 +17,49 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.MovieDB.R;
+import com.example.MovieDB.receivers.NetworkReceiver;
 import com.example.MovieDB.ui.fragment.AiringToday;
 import com.example.MovieDB.ui.fragment.NowPlaying;
 import com.example.MovieDB.ui.fragment.OnTheAir;
+import com.example.MovieDB.utils.Utils;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.tabs.TabLayout;
 
-public class NowPlaying_OnTheAir extends NavigationViewActivity implements TabLayout.OnTabSelectedListener {
+public class NowPlaying_OnTheAir extends NavigationViewActivity implements TabLayout.OnTabSelectedListener, NetworkReceiver.NetworkCallbackListener {
 
     private Context context = this;
+    private Activity activity = this;
     private FrameLayout frameLayout, nowPlayingFrameLayout;
     private Toolbar toolbar;
     private TextView title;
-    private String head_title;
     private ImageView searchIcon;
     private TabLayout nowPlayingTabLayout;
-    FragmentTransaction transaction;
-    FragmentManager manager;
+    private FragmentTransaction transaction;
+    private FragmentManager manager;
+    private NetworkReceiver receiver;
+    private IntentFilter filter;
+    private LinearLayout connectedContainer, disconnectedContainer;
+    private BottomSheetDialog connectionDialog;
+    private Handler h;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        registerReceiver(receiver, filter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(receiver);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +72,10 @@ public class NowPlaying_OnTheAir extends NavigationViewActivity implements TabLa
         toolbar = findViewById(R.id.toolbar);
         title = toolbar.findViewById(R.id.title);
         searchIcon = toolbar.findViewById(R.id.search_icon);
+        connectionDialog = Utils.showDisconnectionDialog(context);
+        connectedContainer = connectionDialog.findViewById(R.id.connected_container);
+        disconnectedContainer = connectionDialog.findViewById(R.id.disconnected_container);
+        h = new Handler();
         frameLayout.addView(contentView);
         searchIcon.setVisibility(View.VISIBLE);
         searchIcon.setOnClickListener(click -> {
@@ -73,34 +102,23 @@ public class NowPlaying_OnTheAir extends NavigationViewActivity implements TabLa
         transaction.add(R.id.now_playing_framelayout, nowPlaying);
         transaction.commit();
         nowPlayingTabLayout.addOnTabSelectedListener(this);
+        filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        receiver = new NetworkReceiver();
+        receiver.setListener(this);
+
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawers();
             return true;
-        }
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            exitDialog();
+        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Utils.exitDialog(activity);
             return true;
         }
         return super.onKeyDown(keyCode, event);
-    }
-
-    private void exitDialog() {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-        dialog.setTitle("Exit");
-        dialog.setIcon(R.drawable.movie_icon);
-        dialog.setMessage("Do you want to exit ?");
-        dialog.setPositiveButton("Yes", (dialog1, which) -> {
-            finishAffinity();
-        });
-        dialog.setNegativeButton("No", (dialog1, which) -> {
-
-        });
-        dialog.setCancelable(false);
-        dialog.show();
     }
 
     @Override
@@ -139,4 +157,20 @@ public class NowPlaying_OnTheAir extends NavigationViewActivity implements TabLa
     public void onTabReselected(TabLayout.Tab tab) {
 
     }
+
+    @Override
+    public void callbackListener(boolean isConnected) {
+        if (isConnected) {
+            connectedContainer.setVisibility(View.VISIBLE);
+            disconnectedContainer.setVisibility(View.GONE);
+            h.postDelayed(() -> {
+                connectionDialog.dismiss();
+            }, 1000);
+        } else {
+            connectedContainer.setVisibility(View.GONE);
+            disconnectedContainer.setVisibility(View.VISIBLE);
+            connectionDialog.show();
+        }
+    }
+
 }

@@ -50,11 +50,7 @@ public class KeywordAdapter<E> extends RecyclerView.Adapter<KeywordAdapter.Keywo
 
     @Override
     public int getItemCount() {
-        if (keywordList != null) {
-            return keywordList.size();
-        } else {
-            return 0;
-        }
+        return keywordList != null ? keywordList.size() : 0;
     }
 
     public class KeywordViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -73,7 +69,7 @@ public class KeywordAdapter<E> extends RecyclerView.Adapter<KeywordAdapter.Keywo
                 keywordText.setText(((Keyword) object).getName());
             } else if (object instanceof KeywordResult) {
                 keywordText.setText(((KeywordResult) object).getName());
-            }else if (object instanceof SeriesKeywords) {
+            } else if (object instanceof SeriesKeywords) {
                 keywordText.setText(((SeriesKeywords) object).getName());
             }
         }

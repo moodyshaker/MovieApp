@@ -127,7 +127,7 @@
                                         android:id="@+id/rate_number_text"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:gravity="right"
+                                        android:gravity="end"
                                         android:text="9"
                                         android:textColor="@color/white"
                                         android:textSize="17sp"
@@ -136,7 +136,7 @@
                                     <TextView
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:gravity="right"
+                                        android:gravity="end"
                                         android:text="/10"
                                         android:textColor="@color/gray_400"
                                         android:textSize="14sp" />
@@ -180,7 +180,7 @@
                                 android:id="@+id/seenlist_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
-                                android:layout_marginRight="8dp"
+                                android:layout_marginEnd="8dp"
                                 android:gravity="center_vertical"
                                 android:text="Seenlist"
                                 android:textColor="@color/seenlist_color"
@@ -192,7 +192,7 @@
                             android:id="@+id/wishlist_container"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="8dp"
+                            android:layout_marginStart="8dp"
                             android:background="@drawable/wishlist_background"
                             android:gravity="center"
                             android:orientation="horizontal"
@@ -208,7 +208,7 @@
                                 android:id="@+id/wishlist_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
-                                android:layout_marginRight="8dp"
+                                android:layout_marginEnd="8dp"
                                 android:gravity="center_vertical"
                                 android:text="Wishlist"
                                 android:textColor="@color/wishlist_color"
@@ -234,7 +234,7 @@
                     android:id="@+id/review_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center_vertical"
                     android:textColor="@color/blue_gray_400"
@@ -244,7 +244,7 @@
                 <ImageView
                     android:layout_width="28dp"
                     android:layout_height="28dp"
-                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:layout_gravity="end"
                     android:backgroundTint="@android:color/darker_gray"
@@ -341,13 +341,28 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <TextView
+                <com.ms.square.android.expandabletextview.ExpandableTextView xmlns:expandableTextView="http://schemas.android.com/apk/res-auto"
                     android:id="@+id/over_view_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Content"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp" />
+                    expandableTextView:animDuration="200"
+                    expandableTextView:maxCollapsedLines="3">
+
+                    <TextView
+                        android:id="@id/expandable_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/white"
+                        android:textSize="14sp" />
+
+                    <ImageButton
+                        android:id="@id/expand_collapse"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|bottom"
+                        android:background="@android:color/transparent"
+                        android:padding="16dp" />
+                </com.ms.square.android.expandabletextview.ExpandableTextView>
 
             </LinearLayout>
 
@@ -457,7 +472,7 @@
                         android:id="@+id/director_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="4dp"
+                        android:layout_marginStart="4dp"
                         android:text="Stephen John"
                         android:textColor="@color/white"
                         android:textSize="16sp"

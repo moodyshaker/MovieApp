@@ -5,7 +5,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
-import com.example.MovieDB.R;
 import com.example.MovieDB.contract.RecommendationsMoviesContract;
 import com.example.MovieDB.contract.RecommendationsSeriesContract;
 import com.example.MovieDB.endpoints.EndPoints;
@@ -47,7 +46,7 @@ public class RecommendationsPresenter {
             movieList.addAll(movieResponse.getMovieList());
             movieContract.recommendationsListener(movieList);
         },
-                error -> movieContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+                error -> {});
         queue.add(request);
     }
 
@@ -63,7 +62,7 @@ public class RecommendationsPresenter {
             seriesList.addAll(series.getResults());
             seriesContract.RecommendationsSeriesListener(seriesList);
         },
-                error -> movieContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+                error ->{});
         queue.add(request);
     }
 

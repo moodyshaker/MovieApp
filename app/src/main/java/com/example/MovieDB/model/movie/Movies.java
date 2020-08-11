@@ -3,10 +3,10 @@ package com.example.MovieDB.model.movie;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class Movies implements Serializable {
+
+public class Movies{
     @SerializedName("vote_count")
     @Expose
     private Integer voteCount;

@@ -5,7 +5,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
-import com.example.MovieDB.R;
 import com.example.MovieDB.contract.ReviewContract;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.example.MovieDB.model.reviews.ReviewResponse;
@@ -29,9 +28,7 @@ public class ReviewPresenter {
             ReviewResponse reviewResponse = gson.fromJson(response, ReviewResponse.class);
             contract.reviewListener(reviewResponse.getReview());
             contract.reviewResultListener(reviewResponse.getTotalResults());
-        }, error -> {
-            contract.internetConnectionError(R.drawable.baseline_wifi_off_black_36);
-        });
+        }, error -> {});
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
     }
@@ -45,9 +42,7 @@ public class ReviewPresenter {
             ReviewResponse reviewResponse = gson.fromJson(response, ReviewResponse.class);
             contract.reviewListener(reviewResponse.getReview());
             contract.reviewResultListener(reviewResponse.getTotalResults());
-        }, error -> {
-            contract.internetConnectionError(R.drawable.baseline_wifi_off_black_36);
-        });
+        }, error -> {});
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
     }

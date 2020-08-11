@@ -21,6 +21,7 @@
     <color name="purple_900_trans">#4D4A148C</color>
     <color name="pink_900">#880E4F</color>
     <color name="red_900">#B71C1C</color>
+    <color name="sign_in_dialog_color">#03A9F4</color>
     <color name="red_900_trans">#4DB71C1C</color>
     <color name="blue_900">#0D47A1</color>
     <color name="blue_900_trans">#4D0D47A1</color>
@@ -32,6 +33,7 @@
     <color name="cyan_900_trans">#4D006064</color>
     <color name="light_blue_900">#01579B</color>
     <color name="light_blue_900_trans">#4D01579B</color>
+    <color name="logout_login_color">#607d8b</color>
 
     <color name="lime_900">#827717</color>
     <color name="yellow_A200">#FFFF00</color>
@@ -40,6 +42,7 @@
     <color name="light_green_900_trans">#4D33691E</color>
 
     <color name="green_900">#1B5E20</color>
+    <color name="green_600">#43A047</color>
     <color name="orange_900">#E65100</color>
     <color name="amber_900">#FF6F00</color>
     <color name="amber_900_trans">#4DFF6F00</color>

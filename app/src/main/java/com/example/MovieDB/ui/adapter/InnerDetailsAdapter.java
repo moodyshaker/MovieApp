@@ -2,7 +2,7 @@ package com.example.MovieDB.ui.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +22,7 @@ import com.example.MovieDB.model.series.SeriesResult;
 import com.example.MovieDB.model.series_seasons.SeasonEpisodes;
 import com.example.MovieDB.ui.activity.MovieDetails;
 import com.example.MovieDB.ui.activity.SeriesDetails;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
@@ -66,11 +67,7 @@ public class InnerDetailsAdapter<E> extends RecyclerView.Adapter<InnerDetailsAda
 
     @Override
     public int getItemCount() {
-        if (list != null) {
-            return list.size();
-        } else {
-            return 0;
-        }
+        return list != null ? list.size() : 0;
     }
 
     public class InnerDetailsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -82,6 +79,7 @@ public class InnerDetailsAdapter<E> extends RecyclerView.Adapter<InnerDetailsAda
         private Date date;
         private SimpleDateFormat formatter;
         private String finalDate;
+        private Gson g;
 
         public InnerDetailsViewHolder(View itemView) {
             super(itemView);
@@ -91,6 +89,7 @@ public class InnerDetailsAdapter<E> extends RecyclerView.Adapter<InnerDetailsAda
             releaseDate = itemView.findViewById(R.id.release_date);
             rateText = itemView.findViewById(R.id.rate_number_text);
             rateProgressbar = itemView.findViewById(R.id.rate_progress_bar);
+            g = new Gson();
             itemView.setOnClickListener(this);
         }
 
@@ -99,7 +98,7 @@ public class InnerDetailsAdapter<E> extends RecyclerView.Adapter<InnerDetailsAda
             if (object instanceof Movies) {
                 Picasso.get().load(EndPoints.Image500W + ((Movies) object).getPosterPath()).error(R.drawable.cinema).into(moviePoster);
                 movieName.setText(((Movies) object).getTitle());
-                if (((Movies) object).getReleaseDate() != null) {
+                if (TextUtils.isEmpty(((Movies) object).getReleaseDate())) {
                     try {
                         date = new SimpleDateFormat("yyyy-MM-dd").parse(((Movies) object).getReleaseDate());
                     } catch (ParseException e) {
@@ -149,19 +148,17 @@ public class InnerDetailsAdapter<E> extends RecyclerView.Adapter<InnerDetailsAda
             if (object instanceof SeriesResult) {
                 if (((SeriesResult) object).getPosterPath() != null) {
                     Intent i = new Intent(context, SeriesDetails.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("series_object", ((SeriesResult) object));
-                    i.putExtras(bundle);
+                    String seriesJson = g.toJson(object);
+                    i.putExtra("series_object", seriesJson);
                     context.startActivity(i);
                 } else {
                     Toast.makeText(context, "There is n data to display", Toast.LENGTH_SHORT).show();
                 }
             } else if (object instanceof Movies) {
                 Intent i = new Intent(context, MovieDetails.class);
-                i.putExtra("type", "one");
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("movie_object", ((Movies) object));
-                i.putExtras(bundle);
+                i.putExtra("type", "two");
+                String movieJson = g.toJson(object);
+                i.putExtra("movie_object", movieJson);
                 context.startActivity(i);
             } else if (object instanceof SeasonEpisodes) {
                 episodeCLickListener.onEpisodeClickListener((SeasonEpisodes) object);

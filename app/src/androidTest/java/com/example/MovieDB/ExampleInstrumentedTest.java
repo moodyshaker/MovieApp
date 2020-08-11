@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getContext();
 
-        assertEquals("com.example.moviedbapi", appContext.getPackageName());
+        assertEquals("com.example.MovieDBapi", appContext.getPackageName());
     }
 }

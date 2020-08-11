@@ -1,11 +1,15 @@
 package com.example.MovieDB.ui.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.GradientDrawable;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -31,18 +35,22 @@ import com.example.MovieDB.model.movie.Movies;
 import com.example.MovieDB.model.series.SeriesResult;
 import com.example.MovieDB.presenter.MovieByKeywordPresenter;
 import com.example.MovieDB.presenter.MovieSearchPresenter;
+import com.example.MovieDB.receivers.NetworkReceiver;
 import com.example.MovieDB.ui.adapter.KeywordAdapter;
 import com.example.MovieDB.ui.adapter.MovieReleaseYearAdapter;
 import com.example.MovieDB.ui.adapter.PersonSearchAdapter;
 import com.example.MovieDB.ui.adapter.SearchAdapter;
+import com.example.MovieDB.utils.Utils;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class Search extends AppCompatActivity implements SearchContract, MovieReleaseYearAdapter.ReleaseDateOnClickListener, MovieByKeywordContract, KeywordAdapter.OnMovieKeywordClickListener<KeywordResult>, TabLayout.OnTabSelectedListener {
+public class Search extends AppCompatActivity implements NetworkReceiver.NetworkCallbackListener, SearchContract, MovieReleaseYearAdapter.ReleaseDateOnClickListener, MovieByKeywordContract, KeywordAdapter.OnMovieKeywordClickListener<KeywordResult>, TabLayout.OnTabSelectedListener {
     private Context context = this;
+    private Activity activity = this;
     private Toolbar toolbar;
     private TextView title, pagesCounter;
     private ActionBar actionBar;
@@ -66,9 +74,25 @@ public class Search extends AppCompatActivity implements SearchContract, MovieRe
     private ArrayList<String> years = new ArrayList<>();
     private MovieReleaseYearAdapter releaseYearAdapter;
     private String query = "";
-    private final String TAG = context.getClass().getName();
     private Intent intent;
     private MovieByKeywordPresenter movieByKeywordPresenter;
+    private NetworkReceiver receiver;
+    private IntentFilter filter;
+    private LinearLayout connectedContainer, disconnectedContainer;
+    private BottomSheetDialog connectionDialog;
+    private Handler h;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        registerReceiver(receiver, filter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(receiver);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +107,10 @@ public class Search extends AppCompatActivity implements SearchContract, MovieRe
         pagesCounter = findViewById(R.id.pages_counter);
         tabLayout = findViewById(R.id.search_type_tab_layout);
         releaseYearRecyclerView = findViewById(R.id.release_year_rc);
+        connectionDialog = Utils.showDisconnectionDialog(context);
+        connectedContainer = connectionDialog.findViewById(R.id.connected_container);
+        disconnectedContainer = connectionDialog.findViewById(R.id.disconnected_container);
+        h = new Handler();
         title.setText("MovieDB");
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
@@ -106,10 +134,14 @@ public class Search extends AppCompatActivity implements SearchContract, MovieRe
         linearLayout.setDividerDrawable(drawable);
         closeIcon = searchView.findViewById(androidx.appcompat.R.id.search_close_btn);
         searchText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+        searchText.setHintTextColor(getResources().getColor(R.color.blue_gray_100));
         searchText.setTextColor(getResources().getColor(R.color.blue_gray_100));
         closeIcon.setColorFilter(getResources().getColor(R.color.blue_gray_100));
         presenter = new MovieSearchPresenter(this);
         handler = new Handler();
+        filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        receiver = new NetworkReceiver();
+        receiver.setListener(this);
         releaseYearRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
         searchRecyclerView.setLayoutManager(new GridLayoutManager(context, 2));
         movieAdapter = new SearchAdapter<>(context);
@@ -282,6 +314,15 @@ public class Search extends AppCompatActivity implements SearchContract, MovieRe
     }
 
     @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            onBackPressed();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
     public void MovieSearchList(List<Movies> movies, int pagesCount, int currentPages) {
         this.pagesCount = pagesCount;
         this.currentPage = currentPages;
@@ -365,10 +406,6 @@ public class Search extends AppCompatActivity implements SearchContract, MovieRe
     @Override
     public void removeLoading() {
 
-    }
-
-    @Override
-    public void internetConnectionError(int internetConnectionIcon) {
     }
 
     private void populateYear() {
@@ -485,6 +522,19 @@ public class Search extends AppCompatActivity implements SearchContract, MovieRe
             releaseYearRecyclerView.setVisibility(View.VISIBLE);
             movieAdapter.setList(moviesList);
             movieAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void callbackListener(boolean isConnected) {
+        if (isConnected) {
+            connectedContainer.setVisibility(View.VISIBLE);
+            disconnectedContainer.setVisibility(View.GONE);
+            h.postDelayed(() -> connectionDialog.dismiss(), 1000);
+        } else {
+            connectedContainer.setVisibility(View.GONE);
+            disconnectedContainer.setVisibility(View.VISIBLE);
+            connectionDialog.show();
         }
     }
 }

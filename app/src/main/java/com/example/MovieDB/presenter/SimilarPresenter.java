@@ -5,7 +5,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
-import com.example.MovieDB.R;
 import com.example.MovieDB.contract.SimilarMoviesContract;
 import com.example.MovieDB.contract.SimilarSeriesContract;
 import com.example.MovieDB.endpoints.EndPoints;
@@ -47,8 +46,7 @@ public class SimilarPresenter {
             MovieResponse movieResponse = gson.fromJson(response, MovieResponse.class);
             moviesList.addAll(movieResponse.getMovieList());
             movieContract.similarListener(moviesList);
-        },
-                error -> movieContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {});
         queue.add(request);
     }
 
@@ -63,8 +61,7 @@ public class SimilarPresenter {
             Series result = gson.fromJson(response, Series.class);
             seriesList.addAll(result.getResults());
             seriesContract.similarSeriesListener(seriesList);
-        },
-                error -> seriesContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {});
         queue.add(request);
     }
 

@@ -2,7 +2,6 @@ package com.example.MovieDB.ui.activity;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.animation.Animation;
@@ -13,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.MovieDB.R;
 import com.example.MovieDB.persistance.sharedpreferences.MovieSharedPreference;
+import com.example.MovieDB.utils.Utils;
 
 public class Splash extends AppCompatActivity {
     private Context context = this;
@@ -29,16 +29,7 @@ public class Splash extends AppCompatActivity {
         logo = findViewById(R.id.app_logo);
         userPreferences = MovieSharedPreference.UserPreferences.getUserPreference(context);
         handler = new Handler();
-        handler.postDelayed(() -> {
-            if (userPreferences.isFirstTime()) {
-                Intent i = new Intent(this, LoginActivty.class);
-                startActivity(i);
-            } else {
-                Intent i = new Intent(this, NowPlaying_OnTheAir.class);
-                startActivity(i);
-            } finish();
-        }, 2000);
-
+        handler.postDelayed(() -> Utils.goActivity(activity, NowPlaying_OnTheAir.class), 2000);
         animation = AnimationUtils.loadAnimation(this, R.anim.animation_splash);
         logo.startAnimation(animation);
     }

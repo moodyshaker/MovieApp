@@ -36,9 +36,7 @@ public class MovieByKeywordPresenter {
             MovieResponse movieResponse = gson.fromJson(response, MovieResponse.class);
             movies.addAll(movieResponse.getMovieList());
             contract.MovieByKeyword(movies, movieResponse.getTotalPages(), page);
-        }, error -> {
-
-        });
+        }, error -> {});
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
     }

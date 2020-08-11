@@ -5,7 +5,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
-import com.example.MovieDB.R;
 import com.example.MovieDB.contract.CreditContract;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.example.MovieDB.model.credit_model.CreditsResponse;
@@ -25,9 +24,10 @@ public class MovieCreditsPresenter {
         StringRequest request = new StringRequest(Request.Method.GET, url, response -> {
             Gson gson = new GsonBuilder().setLenient().create();
             CreditsResponse creditsResponse = gson.fromJson(response, CreditsResponse.class);
-            creditContract.crewListener(creditsResponse.getCrew());
             creditContract.castListener(creditsResponse.getCast());
-        }, error -> creditContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+            creditContract.crewListener(creditsResponse.getCrew());
+        }, error -> {
+        });
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
     }
@@ -39,7 +39,8 @@ public class MovieCreditsPresenter {
             CreditsResponse creditsResponse = gson.fromJson(response, CreditsResponse.class);
             creditContract.crewListener(creditsResponse.getCrew());
             creditContract.castListener(creditsResponse.getCast());
-        }, error -> creditContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {
+        });
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
     }
@@ -51,7 +52,8 @@ public class MovieCreditsPresenter {
             CreditsResponse creditsResponse = gson.fromJson(response, CreditsResponse.class);
             creditContract.crewListener(creditsResponse.getCrew());
             creditContract.castListener(creditsResponse.getCast());
-        }, error -> creditContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {
+        });
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
     }
@@ -63,7 +65,8 @@ public class MovieCreditsPresenter {
             CreditsResponse creditsResponse = gson.fromJson(response, CreditsResponse.class);
             creditContract.crewListener(creditsResponse.getCrew());
             creditContract.castListener(creditsResponse.getCast());
-        }, error -> creditContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {
+        });
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
     }

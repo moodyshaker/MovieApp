@@ -2,7 +2,6 @@ package com.example.MovieDB.ui.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +15,7 @@ import com.example.MovieDB.R;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.example.MovieDB.model.person.PersonCast;
 import com.example.MovieDB.ui.activity.MovieDetails;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -45,17 +45,14 @@ public class PersonCastAdapter extends RecyclerView.Adapter<PersonCastAdapter.Pe
 
     @Override
     public int getItemCount() {
-        if (personCastList != null) {
-            return personCastList.size();
-        } else {
-            return 0;
-        }
+        return personCastList != null ? personCastList.size() : 0;
     }
 
     public class PersonCastViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView poster;
         TextView movieName, creditName, releaseYear;
         PersonCast cast;
+        private Gson g;
 
         PersonCastViewHolder(View view) {
             super(view);
@@ -64,6 +61,7 @@ public class PersonCastAdapter extends RecyclerView.Adapter<PersonCastAdapter.Pe
             movieName = view.findViewById(R.id.movie_name);
             creditName = view.findViewById(R.id.credit_name);
             releaseYear = view.findViewById(R.id.release_year);
+            g = new Gson();
         }
 
         private void dataBinding(PersonCast personCast) {
@@ -95,10 +93,9 @@ public class PersonCastAdapter extends RecyclerView.Adapter<PersonCastAdapter.Pe
         @Override
         public void onClick(View v) {
             Intent i = new Intent(context, MovieDetails.class);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("movie_object", cast);
-            i.putExtras(bundle);
-            i.putExtra("type", "two");
+            String movieJson = g.toJson(cast);
+            i.putExtra("movie_object", movieJson);
+            i.putExtra("type", "one");
             context.startActivity(i);
         }
     }

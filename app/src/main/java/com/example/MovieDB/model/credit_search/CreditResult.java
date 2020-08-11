@@ -3,9 +3,7 @@ package com.example.MovieDB.model.credit_search;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
-
-public class CreditResult implements Serializable {
+public class CreditResult{
 
     @SerializedName("popularity")
     @Expose

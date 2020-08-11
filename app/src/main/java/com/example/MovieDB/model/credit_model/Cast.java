@@ -3,9 +3,8 @@ package com.example.MovieDB.model.credit_model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
 
-public class Cast implements Serializable {
+public class Cast {
     @SerializedName("cast_id")
     @Expose
     private Integer castId;

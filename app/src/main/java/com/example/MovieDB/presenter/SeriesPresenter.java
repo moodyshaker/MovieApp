@@ -5,7 +5,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
-import com.example.MovieDB.R;
 import com.example.MovieDB.contract.SeriesContract;
 import com.example.MovieDB.contract.SeriesDetailsContract;
 import com.example.MovieDB.endpoints.EndPoints;
@@ -67,8 +66,6 @@ public class SeriesPresenter {
             }
 
         }, error -> {
-            contract.removeLoading();
-            contract.internetConnectionError(R.drawable.baseline_wifi_off_black_36);
         });
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
@@ -81,7 +78,6 @@ public class SeriesPresenter {
             SeriesDetailsModel seriesDetailsModel = gson.fromJson(response, SeriesDetailsModel.class);
             detailsContract.SeriesListener(seriesDetailsModel);
         }, error -> {
-            detailsContract.internetConnectionError(R.drawable.baseline_wifi_off_black_36);
         });
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);

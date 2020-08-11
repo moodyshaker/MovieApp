@@ -39,4 +39,5 @@ public class CreditsResponse {
     public void setCrew(List<Crew> crew) {
         this.crew = crew;
     }
+
 }

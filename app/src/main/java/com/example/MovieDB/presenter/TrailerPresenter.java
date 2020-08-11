@@ -5,7 +5,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
-import com.example.MovieDB.R;
 import com.example.MovieDB.contract.TrailerContract;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.example.MovieDB.model.movie_trailer.Trailers;
@@ -26,7 +25,7 @@ public class TrailerPresenter {
             Gson gson = new GsonBuilder().setLenient().create();
             Trailers trailers = gson.fromJson(response, Trailers.class);
             contract.trailers(trailers.getResults());
-        }, error -> contract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {});
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
     }
@@ -37,7 +36,7 @@ public class TrailerPresenter {
             Gson gson = new GsonBuilder().setLenient().create();
             Trailers trailers = gson.fromJson(response, Trailers.class);
             contract.trailers(trailers.getResults());
-        }, error -> contract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {});
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
     }
@@ -50,7 +49,7 @@ public class TrailerPresenter {
                     .create();
             Trailers trailers = gson.fromJson(response, Trailers.class);
             contract.trailers(trailers.getResults());
-        }, error -> contract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {});
 
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
@@ -64,7 +63,7 @@ public class TrailerPresenter {
                     .create();
             Trailers trailers = gson.fromJson(response, Trailers.class);
             contract.trailers(trailers.getResults());
-        }, error -> contract.internetConnectionError(R.drawable.baseline_wifi_off_black_36));
+        }, error -> {});
 
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);

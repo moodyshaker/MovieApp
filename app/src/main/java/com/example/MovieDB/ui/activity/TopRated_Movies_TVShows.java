@@ -1,10 +1,13 @@
 package com.example.MovieDB.ui.activity;
 
-import android.app.AlertDialog;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.GradientDrawable;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,13 +22,18 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.MovieDB.R;
+import com.example.MovieDB.persistance.sharedpreferences.MovieSharedPreference;
+import com.example.MovieDB.receivers.NetworkReceiver;
 import com.example.MovieDB.ui.fragment.TopRatedMovies;
 import com.example.MovieDB.ui.fragment.TopRatedSeries;
+import com.example.MovieDB.utils.Utils;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.tabs.TabLayout;
 
-public class TopRated_Movies_TVShows extends NavigationViewActivity implements TabLayout.OnTabSelectedListener {
+public class TopRated_Movies_TVShows extends NavigationViewActivity implements NetworkReceiver.NetworkCallbackListener, TabLayout.OnTabSelectedListener {
 
     private Context context = this;
+    private Activity activity = this;
     private FrameLayout frameLayout, topRatedFrameLayout;
     private Toolbar toolbar;
     private TextView title;
@@ -34,6 +42,24 @@ public class TopRated_Movies_TVShows extends NavigationViewActivity implements T
     private TabLayout topRatedTabLayout;
     private FragmentTransaction transaction;
     private FragmentManager manager;
+    private MovieSharedPreference.UserPreferences userPreferences;
+    private NetworkReceiver receiver;
+    private IntentFilter filter;
+    private LinearLayout connectedContainer, disconnectedContainer;
+    private BottomSheetDialog connectionDialog;
+    private Handler h;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        registerReceiver(receiver, filter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(receiver);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +71,10 @@ public class TopRated_Movies_TVShows extends NavigationViewActivity implements T
         topRatedTabLayout = contentView.findViewById(R.id.top_rated_tab_layout);
         topRatedFrameLayout = contentView.findViewById(R.id.top_rated_framelayout);
         title = toolbar.findViewById(R.id.title);
+        connectionDialog = Utils.showDisconnectionDialog(context);
+        connectedContainer = connectionDialog.findViewById(R.id.connected_container);
+        disconnectedContainer = connectionDialog.findViewById(R.id.disconnected_container);
+        h = new Handler();
         searchIcon = toolbar.findViewById(R.id.search_icon);
         frameLayout.addView(contentView);
         head_title = getIntent().getStringExtra("title");
@@ -53,6 +83,9 @@ public class TopRated_Movies_TVShows extends NavigationViewActivity implements T
         } else {
             title.setText(getResources().getString(R.string.top_rated));
         }
+        filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        receiver = new NetworkReceiver();
+        receiver.setListener(this);
         searchIcon.setVisibility(View.VISIBLE);
         searchIcon.setOnClickListener(click -> {
             Intent i = new Intent(context, Search.class);
@@ -84,27 +117,11 @@ public class TopRated_Movies_TVShows extends NavigationViewActivity implements T
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawers();
             return true;
-        }
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            exitDialog();
+        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Utils.goActivity(activity, NowPlaying_OnTheAir.class);
             return true;
         }
         return super.onKeyDown(keyCode, event);
-    }
-
-    private void exitDialog() {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-        dialog.setTitle("Exit");
-        dialog.setIcon(R.drawable.movie_icon);
-        dialog.setMessage("Do you want to exit ?");
-        dialog.setPositiveButton("Yes", (dialog1, which) -> {
-            finishAffinity();
-        });
-        dialog.setNegativeButton("No", (dialog1, which) -> {
-
-        });
-        dialog.setCancelable(false);
-        dialog.show();
     }
 
     @Override
@@ -136,5 +153,18 @@ public class TopRated_Movies_TVShows extends NavigationViewActivity implements T
     @Override
     public void onTabReselected(TabLayout.Tab tab) {
 
+    }
+
+    @Override
+    public void callbackListener(boolean isConnected) {
+        if (isConnected) {
+            connectedContainer.setVisibility(View.VISIBLE);
+            disconnectedContainer.setVisibility(View.GONE);
+            h.postDelayed(() -> connectionDialog.dismiss(), 1000);
+        } else {
+            connectedContainer.setVisibility(View.GONE);
+            disconnectedContainer.setVisibility(View.VISIBLE);
+            connectionDialog.show();
+        }
     }
 }

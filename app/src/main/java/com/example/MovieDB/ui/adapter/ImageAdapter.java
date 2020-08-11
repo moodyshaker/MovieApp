@@ -42,11 +42,7 @@ public class ImageAdapter<E> extends RecyclerView.Adapter<ImageAdapter.PersonIma
 
     @Override
     public int getItemCount() {
-        if (movieImageDetailsList != null) {
-            return movieImageDetailsList.size();
-        } else {
-            return 0;
-        }
+        return movieImageDetailsList != null ? movieImageDetailsList.size() : 0;
     }
 
     public class PersonImageViewHolder extends RecyclerView.ViewHolder {

@@ -1,10 +1,17 @@
 package com.example.MovieDB.ui.activity;
 
-import android.app.ProgressDialog;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,6 +40,7 @@ import com.example.MovieDB.contract.SeriesDetailsContract;
 import com.example.MovieDB.contract.SeriesKeywordContract;
 import com.example.MovieDB.contract.SimilarSeriesContract;
 import com.example.MovieDB.contract.TrailerContract;
+import com.example.MovieDB.endpoints.AppConstants;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.example.MovieDB.model.credit_model.Cast;
 import com.example.MovieDB.model.credit_model.Crew;
@@ -51,12 +60,17 @@ import com.example.MovieDB.presenter.ReviewPresenter;
 import com.example.MovieDB.presenter.SeriesPresenter;
 import com.example.MovieDB.presenter.SimilarPresenter;
 import com.example.MovieDB.presenter.TrailerPresenter;
-import com.example.MovieDB.ui.adapter.CastAdapter;
+import com.example.MovieDB.receivers.NetworkReceiver;
 import com.example.MovieDB.ui.adapter.InnerDetailsAdapter;
 import com.example.MovieDB.ui.adapter.KeywordAdapter;
 import com.example.MovieDB.ui.adapter.SeasonAdapter;
+import com.example.MovieDB.ui.adapter.StarsAdapter;
+import com.example.MovieDB.utils.Utils;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.gson.Gson;
+import com.ms.square.android.expandabletextview.ExpandableTextView;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTubePlayerUtils;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
@@ -69,25 +83,34 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class SeriesDetails extends AppCompatActivity implements SeriesDetailsContract, SeriesKeywordContract, SeasonAdapter.SeasonClickListener, TrailerContract, CreditContract, SimilarSeriesContract, RecommendationsSeriesContract, ReviewContract, KeywordAdapter.OnMovieKeywordClickListener<SeriesKeywords> {
+public class SeriesDetails extends AppCompatActivity implements NetworkReceiver.NetworkCallbackListener, SeriesDetailsContract, SeriesKeywordContract, SeasonAdapter.SeasonClickListener, TrailerContract, CreditContract, SimilarSeriesContract, RecommendationsSeriesContract, ReviewContract, KeywordAdapter.OnMovieKeywordClickListener<SeriesKeywords> {
     private SeriesResult series;
-    private static final String TAG = "TAG";
-    private Bundle bundle;
     private SeriesDetailsModel details;
     private ProgressBar rateProgressbar;
     private ImageView seriesSmallIcon, seenlistIcon, wishlistIcon;
-    private LinearLayout directorContainer, recommendationContainer, similarContainer, keywordContainer, seenlistContianer, crewContainer, castContainer, wishlistContainer;
+    private LinearLayout directorContainer,
+            recommendationContainer,
+            similarContainer,
+            keywordContainer,
+            seenlistContianer,
+            crewContainer,
+            castContainer,
+            wishlistContainer,
+            connectedContainer,
+            disconnectedContainer;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private AppBarLayout appBarLayout;
     private Toolbar toolbar;
     private ActionBar actionBar;
     private RecyclerView keywordRecyclerView, castRecyclerView, crewRecyclerView, similarRecyclerView, recommendationRecyclerView, seasonRecyclerView;
-    private TextView rateNumber, rateCount, reviewCount, overViewContent, directorName, wishlistText, seasonNumber, episodeNumber, seenlistText;
+    private TextView rateNumber, rateCount, reviewCount, directorName, wishlistText, seasonNumber, episodeNumber, seenlistText;
     private Context context = this;
+    private ExpandableTextView overViewContent;
+    private Activity activity = this;
     private KeywordAdapter<SeriesKeywords> keywordAdapter;
     private SeriesPresenter seriesPresenter;
-    private CastAdapter<Cast> castAdapter;
-    private CastAdapter<Crew> crewAdapter;
+    private StarsAdapter<Cast> castAdapter;
+    private StarsAdapter<Crew> crewAdapter;
     private InnerDetailsAdapter<SeriesResult> similarAdapter;
     private ReviewPresenter reviewPresenter;
     private TrailerPresenter trailerPresenter;
@@ -103,9 +126,17 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
     private YouTubePlayerView view;
     private YouTubePlayer player;
     private SeasonAdapter seasonAdapter;
-    private ProgressDialog dialog;
+    private AlertDialog dialog;
     private DatabaseRepository repository;
     private MovieSharedPreference.UserPreferences userPreferences;
+    private Dialog loginDialog;
+    private CardView loginButton, cancelButton;
+    private Gson g;
+    private String seriesJson;
+    private NetworkReceiver receiver;
+    private IntentFilter filter;
+    private BottomSheetDialog connectionDialog;
+    private Handler h;
 
     @Override
     protected void onStart() {
@@ -113,6 +144,7 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
         if (player != null) {
             player.play();
         }
+        registerReceiver(receiver, filter);
     }
 
     @Override
@@ -121,6 +153,7 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
         if (player != null) {
             player.pause();
         }
+        unregisterReceiver(receiver);
     }
 
     @Override
@@ -134,11 +167,10 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.blue_gray_100), PorterDuff.Mode.SRC_ATOP);
+        g = new Gson();
         intent = getIntent();
-        bundle = intent.getExtras();
-        if (bundle != null) {
-            series = (SeriesResult) bundle.getSerializable("series_object");
-        }
+        seriesJson = intent.getStringExtra("series_object");
+        series = g.fromJson(seriesJson, SeriesResult.class);
         seriesPresenter = new SeriesPresenter(this);
         seriesPresenter.getSeriesById(series.getId());
         keywordPresenter = new KeywordPresenter(this);
@@ -147,134 +179,87 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
         recoPresenter = new RecommendationsPresenter(this);
         similarPresenter = new SimilarPresenter(this);
         reviewPresenter = new ReviewPresenter(this);
+        loginDialog = new Dialog(context);
+        loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        loginDialog.setCancelable(false);
+        loginDialog.setContentView(R.layout.sign_in_dialog);
+        cancelButton = loginDialog.findViewById(R.id.cancel_button);
+        loginButton = loginDialog.findViewById(R.id.login_button);
+        cancelButton.setOnClickListener(click -> loginDialog.dismiss());
         repository = DatabaseRepository.getRepo(context);
+        connectionDialog = Utils.showDisconnectionDialog(context);
+        connectedContainer = connectionDialog.findViewById(R.id.connected_container);
+        disconnectedContainer = connectionDialog.findViewById(R.id.disconnected_container);
+        h = new Handler();
         userPreferences = MovieSharedPreference.UserPreferences.getUserPreference(context);
-        wishlistContainer.setOnClickListener(click -> {
-            SeriesEntity entity = SeriesEntity.getSeriesEntity(series, userPreferences.getID());
-            if (wishlistContainer.getBackground().getConstantState() == getResources().getDrawable(R.drawable.wishlist_background).getConstantState()) {
-                Toast.makeText(context, "item added to Wishlist", Toast.LENGTH_SHORT).show();
-                wishlistContainer.setBackgroundResource(R.drawable.wishlist_background_fill);
-                wishlistIcon.setImageResource(R.drawable.favourite_white);
-                wishlistText.setTextColor(getResources().getColor(R.color.white));
-                repository.getSeriesById(entity.getSeries_id())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new SingleObserver<SeriesEntity>() {
-                            @Override
-                            public void onSubscribe(Disposable d) {
-
-                            }
-
-                            @Override
-                            public void onSuccess(SeriesEntity seriesEntity) {
-                                Log.e(TAG, "onSuccess: ");
-                                repository.setSeriesToWish(seriesEntity.getSeries_id());
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                Log.e(TAG, "onError: " + e.getMessage());
-                                repository.addSeries(entity);
-                                repository.setSeriesToWish(entity.getSeries_id());
-                            }
-                        });
-            } else {
-                Toast.makeText(context, "item removed from Wishlist", Toast.LENGTH_SHORT).show();
-                wishlistContainer.setBackgroundResource(R.drawable.wishlist_background);
-                wishlistIcon.setImageResource(R.drawable.whishlist_heart);
-                wishlistText.setTextColor(getResources().getColor(R.color.wishlist_color));
-                repository.deleteWishSeries(entity.getSeries_id());
+        filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        receiver = new NetworkReceiver();
+        receiver.setListener(this);
+        if (intent.hasExtra("WHICH")) {
+            if (intent.getStringExtra("WHICH").equals("SEENLIST")) {
+                seenSeriesClick();
+            } else if (intent.getStringExtra("WHICH").equals("WISHLIST")) {
+                wishSeriesClick();
             }
-        });
-        seenlistContianer.setOnClickListener(click -> {
-            SeriesEntity entity = SeriesEntity.getSeriesEntity(series, userPreferences.getID());
-            if (seenlistContianer.getBackground().getConstantState() == getResources().getDrawable(R.drawable.seenlist_background).getConstantState()) {
-                Toast.makeText(context, "item added to Seenlist", Toast.LENGTH_SHORT).show();
-                seenlistContianer.setBackgroundResource(R.drawable.seenlist_background_fill);
-                seenlistIcon.setImageResource(R.drawable.eye_white);
-                seenlistText.setTextColor(getResources().getColor(R.color.white));
-                repository.getSeriesById(entity.getSeries_id())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new SingleObserver<SeriesEntity>() {
-                            @Override
-                            public void onSubscribe(Disposable d) {
+        }
+        wishlistContainer.setOnClickListener(click -> wishSeriesClick());
+        seenlistContianer.setOnClickListener(click -> seenSeriesClick());
+        if (!userPreferences.isFirstTime()) {
+            repository.getSeenSeries(series.getId())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new SingleObserver<SeriesEntity>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
 
-                            }
-
-                            @Override
-                            public void onSuccess(SeriesEntity seriesEntity) {
-                                repository.setSeriesToSeen(seriesEntity.getSeries_id());
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                repository.addSeries(entity);
-                                repository.setSeriesToSeen(entity.getSeries_id());
-                            }
-                        });
-            } else {
-                Toast.makeText(context, "item removed from Seenlist", Toast.LENGTH_SHORT).show();
-                seenlistContianer.setBackgroundResource(R.drawable.seenlist_background);
-                seenlistIcon.setImageResource(R.drawable.seenlist_eye);
-                seenlistText.setTextColor(getResources().getColor(R.color.seenlist_color));
-                repository.deleteSeenSeries(entity.getSeries_id());
-            }
-        });
-        repository.getSeenSeries(series.getId())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<SeriesEntity>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onSuccess(SeriesEntity seriesEntity) {
-                        if (seriesEntity != null) {
-                            seenlistContianer.setBackgroundResource(R.drawable.seenlist_background_fill);
-                            seenlistIcon.setImageResource(R.drawable.eye_white);
-                            seenlistText.setTextColor(getResources().getColor(R.color.white));
-                        } else {
-                            seenlistContianer.setBackgroundResource(R.drawable.seenlist_background);
-                            seenlistIcon.setImageResource(R.drawable.seenlist_eye);
-                            seenlistText.setTextColor(getResources().getColor(R.color.seenlist_color));
                         }
-                    }
 
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-                });
-        repository.getWishSeries(series.getId())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<SeriesEntity>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onSuccess(SeriesEntity seriesEntity) {
-                        if (seriesEntity != null) {
-                            wishlistContainer.setBackgroundResource(R.drawable.wishlist_background_fill);
-                            wishlistIcon.setImageResource(R.drawable.favourite_white);
-                            wishlistText.setTextColor(getResources().getColor(R.color.white));
-                        } else {
-                            wishlistContainer.setBackgroundResource(R.drawable.wishlist_background);
-                            wishlistIcon.setImageResource(R.drawable.whishlist_heart);
-                            wishlistText.setTextColor(getResources().getColor(R.color.wishlist_color));
+                        @Override
+                        public void onSuccess(SeriesEntity seriesEntity) {
+                            if (seriesEntity != null) {
+                                seenlistContianer.setBackgroundResource(R.drawable.seenlist_background_fill);
+                                seenlistIcon.setImageResource(R.drawable.eye_white);
+                                seenlistText.setTextColor(getResources().getColor(R.color.white));
+                            } else {
+                                seenlistContianer.setBackgroundResource(R.drawable.seenlist_background);
+                                seenlistIcon.setImageResource(R.drawable.seenlist_eye);
+                                seenlistText.setTextColor(getResources().getColor(R.color.seenlist_color));
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onError(Throwable e) {
+                        @Override
+                        public void onError(Throwable e) {
 
-                    }
-                });
+                        }
+                    });
+            repository.getWishSeries(series.getId())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new SingleObserver<SeriesEntity>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onSuccess(SeriesEntity seriesEntity) {
+                            if (seriesEntity != null) {
+                                wishlistContainer.setBackgroundResource(R.drawable.wishlist_background_fill);
+                                wishlistIcon.setImageResource(R.drawable.favourite_white);
+                                wishlistText.setTextColor(getResources().getColor(R.color.white));
+                            } else {
+                                wishlistContainer.setBackgroundResource(R.drawable.wishlist_background);
+                                wishlistIcon.setImageResource(R.drawable.whishlist_heart);
+                                wishlistText.setTextColor(getResources().getColor(R.color.wishlist_color));
+                            }
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+                    });
+        }
         recommendationRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -324,10 +309,10 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
         recommendation = new InnerDetailsAdapter<>(context);
         recommendationRecyclerView.setAdapter(recommendation);
         crewRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
-        crewAdapter = new CastAdapter<>(context);
+        crewAdapter = new StarsAdapter<>(context);
         crewRecyclerView.setAdapter(crewAdapter);
         castRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
-        castAdapter = new CastAdapter<>(context);
+        castAdapter = new StarsAdapter<>(context);
         castRecyclerView.setAdapter(castAdapter);
     }
 
@@ -346,10 +331,7 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
 
     private void initView() {
         collapsingToolbarLayout = findViewById(R.id.collapsing_layout);
-        dialog = new ProgressDialog(context, R.style.AppTheme_Dark_Dialog);
-        dialog.setIndeterminate(true);
-        dialog.setCancelable(false);
-        dialog.setMessage("Loading Data");
+        dialog = Utils.showLoadingDialog(context);
         dialog.show();
         toolbar = findViewById(R.id.movie_details_toolbar);
         appBarLayout = findViewById(R.id.appbarlayout_container);
@@ -384,6 +366,106 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
         view = findViewById(R.id.youtube_player_view);
     }
 
+    private void wishSeriesClick() {
+        if (userPreferences.isFirstTime()) {
+            loginDialog.show();
+            loginButton.setOnClickListener(login -> {
+                Intent i = new Intent(context, Login.class);
+                i.putExtra("FROM_WHERE", "SERIES_DETAILS");
+                i.putExtra("WHICH", "WISHLIST");
+                String seriesJson = g.toJson(series);
+                i.putExtra("series_object", seriesJson);
+                startActivity(i);
+                finish();
+            });
+        } else {
+            SeriesEntity entity = SeriesEntity.getSeriesEntity(series, userPreferences.getID());
+            if (wishlistContainer.getBackground().getConstantState() == getResources().getDrawable(R.drawable.wishlist_background).getConstantState()) {
+                Toast.makeText(context, "item added to Wishlist", Toast.LENGTH_SHORT).show();
+                wishlistContainer.setBackgroundResource(R.drawable.wishlist_background_fill);
+                wishlistIcon.setImageResource(R.drawable.favourite_white);
+                wishlistText.setTextColor(getResources().getColor(R.color.white));
+                repository.getSeriesById(entity.getSeries_id())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new SingleObserver<SeriesEntity>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onSuccess(SeriesEntity seriesEntity) {
+                                Log.e(AppConstants.TAG, "onSuccess: ");
+                                repository.setSeriesToWish(seriesEntity.getSeries_id());
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.e(AppConstants.TAG, "onError: " + e.getMessage());
+                                repository.addSeries(entity);
+                                repository.setSeriesToWish(entity.getSeries_id());
+                            }
+                        });
+            } else {
+                Toast.makeText(context, "item removed from Wishlist", Toast.LENGTH_SHORT).show();
+                wishlistContainer.setBackgroundResource(R.drawable.wishlist_background);
+                wishlistIcon.setImageResource(R.drawable.whishlist_heart);
+                wishlistText.setTextColor(getResources().getColor(R.color.wishlist_color));
+                repository.deleteWishSeries(entity.getSeries_id());
+            }
+        }
+    }
+
+    private void seenSeriesClick() {
+        if (userPreferences.isFirstTime()) {
+            loginDialog.show();
+            loginButton.setOnClickListener(login -> {
+                Intent i = new Intent(context, Login.class);
+                i.putExtra("FROM_WHERE", "SERIES_DETAILS");
+                i.putExtra("WHICH", "SEENLIST");
+                String seriesJson = g.toJson(series);
+                i.putExtra("series_object", seriesJson);
+                startActivity(i);
+                finish();
+            });
+        } else {
+            SeriesEntity entity = SeriesEntity.getSeriesEntity(series, userPreferences.getID());
+            if (seenlistContianer.getBackground().getConstantState() == getResources().getDrawable(R.drawable.seenlist_background).getConstantState()) {
+                Toast.makeText(context, "item added to Seenlist", Toast.LENGTH_SHORT).show();
+                seenlistContianer.setBackgroundResource(R.drawable.seenlist_background_fill);
+                seenlistIcon.setImageResource(R.drawable.eye_white);
+                seenlistText.setTextColor(getResources().getColor(R.color.white));
+                repository.getSeriesById(entity.getSeries_id())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new SingleObserver<SeriesEntity>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onSuccess(SeriesEntity seriesEntity) {
+                                repository.setSeriesToSeen(seriesEntity.getSeries_id());
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                repository.addSeries(entity);
+                                repository.setSeriesToSeen(entity.getSeries_id());
+                            }
+                        });
+            } else {
+                Toast.makeText(context, "item removed from Seenlist", Toast.LENGTH_SHORT).show();
+                seenlistContianer.setBackgroundResource(R.drawable.seenlist_background);
+                seenlistIcon.setImageResource(R.drawable.seenlist_eye);
+                seenlistText.setTextColor(getResources().getColor(R.color.seenlist_color));
+                repository.deleteSeenSeries(entity.getSeries_id());
+            }
+        }
+    }
+
     @Override
     public void crewListener(List<Crew> crews) {
         if (crews.size() == 0) {
@@ -395,7 +477,8 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
                 directorName.setText(c.getName());
             }
         }
-        crewAdapter.setCastList(crews);
+        crewAdapter.setStarList(crews);
+        crewAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -403,7 +486,8 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
         if (casts.size() == 0) {
             castContainer.setVisibility(View.GONE);
         }
-        castAdapter.setCastList(casts);
+        castAdapter.setStarList(casts);
+        castAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -423,11 +507,6 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
 
     @Override
     public void removeLoading() {
-
-    }
-
-    @Override
-    public void internetConnectionError(int internetConnectionIcon) {
 
     }
 
@@ -597,12 +676,12 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
     }
 
     @Override
-    public void onSeasonClickListenr(SeriesSeasons season) {
+    public void onSeasonClickListener(SeriesSeasons season) {
         Intent i = new Intent(context, SeasonDetails.class);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("season_object", season);
-        bundle.putSerializable("series_object", details);
-        i.putExtras(bundle);
+        String seasonJson = g.toJson(season);
+        String detailsJson = g.toJson(details);
+        i.putExtra("season_object", seasonJson);
+        i.putExtra("series_object", detailsJson);
         context.startActivity(i);
     }
 
@@ -611,6 +690,19 @@ public class SeriesDetails extends AppCompatActivity implements SeriesDetailsCon
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.toolbar_icons, menu);
         return true;
+    }
+
+    @Override
+    public void callbackListener(boolean isConnected) {
+        if (isConnected) {
+            connectedContainer.setVisibility(View.VISIBLE);
+            disconnectedContainer.setVisibility(View.GONE);
+            h.postDelayed(() -> connectionDialog.dismiss(), 1000);
+        } else {
+            connectedContainer.setVisibility(View.GONE);
+            disconnectedContainer.setVisibility(View.VISIBLE);
+            connectionDialog.show();
+        }
     }
 }
 

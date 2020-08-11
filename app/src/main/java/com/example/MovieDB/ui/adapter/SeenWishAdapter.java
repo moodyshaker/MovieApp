@@ -2,7 +2,6 @@ package com.example.MovieDB.ui.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +22,7 @@ import com.example.MovieDB.persistance.database.entity.MovieEntity;
 import com.example.MovieDB.persistance.database.entity.SeriesEntity;
 import com.example.MovieDB.ui.activity.MovieDetails;
 import com.example.MovieDB.ui.activity.SeriesDetails;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -69,6 +69,7 @@ public class SeenWishAdapter<T> extends RecyclerView.Adapter<SeenWishAdapter.See
         TextView movieName, releaseDate, rateText;
         ProgressBar rateProgressbar;
         T object;
+        private Gson g;
         private Date date;
         private SimpleDateFormat formatter;
         private String finalDate;
@@ -83,6 +84,7 @@ public class SeenWishAdapter<T> extends RecyclerView.Adapter<SeenWishAdapter.See
             rateText = v.findViewById(R.id.rate_number_text);
             rateProgressbar = v.findViewById(R.id.rate_progress_bar);
             moreIcon = v.findViewById(R.id.more_option);
+            g = new Gson();
             v.setOnClickListener(this);
         }
 
@@ -166,9 +168,8 @@ public class SeenWishAdapter<T> extends RecyclerView.Adapter<SeenWishAdapter.See
                 SeriesResult seriesResult = SeriesEntity.getSeriesModel((SeriesEntity) object);
                 if (seriesResult.getPosterPath() != null) {
                     Intent i = new Intent(context, SeriesDetails.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("series_object", seriesResult);
-                    i.putExtras(bundle);
+                    String SeriesJson = g.toJson(seriesResult);
+                    i.putExtra("series_object", SeriesJson);
                     context.startActivity(i);
                 } else {
                     Toast.makeText(context, "There is n data to display", Toast.LENGTH_SHORT).show();
@@ -176,10 +177,9 @@ public class SeenWishAdapter<T> extends RecyclerView.Adapter<SeenWishAdapter.See
             } else if (object instanceof MovieEntity) {
                 Movies movies = MovieEntity.getMovieModel((MovieEntity) object);
                 Intent i = new Intent(context, MovieDetails.class);
-                i.putExtra("type", "one");
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("movie_object", movies);
-                i.putExtras(bundle);
+                i.putExtra("type", "two");
+                String movieJson = g.toJson(movies);
+                i.putExtra("movie_object", movieJson);
                 context.startActivity(i);
             }
         }

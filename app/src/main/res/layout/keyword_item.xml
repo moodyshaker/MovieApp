@@ -24,7 +24,6 @@
             android:layout_weight="3"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:fontFamily="@font/bitter_font"
             android:textColor="@color/gray_900"
             android:textSize="14sp"
             tools:text="hello world of beauty" />
@@ -33,7 +32,7 @@
             android:layout_width="0dp"
             android:layout_weight="0.5"
             android:layout_height="match_parent"
-            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
             android:gravity="center_vertical"
             android:src="@drawable/ic_keyboard_arrow_right_black_24dp" />
 

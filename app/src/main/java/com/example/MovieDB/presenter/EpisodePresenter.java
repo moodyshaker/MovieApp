@@ -5,7 +5,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.MovieDB.MovieApp;
-import com.example.MovieDB.R;
 import com.example.MovieDB.contract.EpisodeContract;
 import com.example.MovieDB.endpoints.EndPoints;
 import com.example.MovieDB.model.series_episodes.SeriesEpisodeDetails;
@@ -26,9 +25,7 @@ public class EpisodePresenter {
             Gson gson = new GsonBuilder().setLenient().create();
             SeriesEpisodeDetails episode = gson.fromJson(response, SeriesEpisodeDetails.class);
             contract.episodeListener(episode);
-        }, error -> {
-            contract.internetConnectionError(R.drawable.baseline_wifi_off_black_36);
-        });
+        }, error -> {});
         RequestQueue queue = Volley.newRequestQueue(MovieApp.getInstance().getApplicationContext());
         queue.add(request);
     }
