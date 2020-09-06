@@ -44,8 +44,8 @@
                     android:gravity="center_vertical"
                     android:visibility="visible"
                     app:queryHint="Movie name..."
-                    app:searchIcon="@drawable/ic_search"
-                    app:searchHintIcon="@null"/>
+                    app:searchHintIcon="@null"
+                    app:searchIcon="@drawable/ic_search" />
 
             </LinearLayout>
         </androidx.appcompat.widget.Toolbar>
@@ -83,24 +83,67 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/search_type_tab_layout_cv"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginLeft="30dp"
             android:elevation="10dp"
             app:cardCornerRadius="10dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.tabs.TabLayout
+            <com.gauravk.bubblenavigation.BubbleNavigationLinearView
                 android:id="@+id/search_type_tab_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/tablayout_background"
-                app:tabBackground="@drawable/tablayout_select_drawables"
-                app:tabIndicator="@null"
-                app:tabSelectedTextColor="@color/white"
-                app:tabTextColor="@color/gray_600" />
+                android:background="@color/gray_300"
+                android:elevation="8dp"
+                android:orientation="horizontal"
+                android:padding="12dp">
+
+                <com.gauravk.bubblenavigation.BubbleToggleView
+                    android:id="@+id/movie_tab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:bt_colorActive="@color/gray_600"
+                    app:bt_colorInactive="@color/gray_600"
+                    app:bt_icon="@drawable/movie_icon_24"
+                    app:bt_shape="@drawable/tablayout_background"
+                    app:bt_title="MOVIES" />
+
+                <com.gauravk.bubblenavigation.BubbleToggleView
+                    android:id="@+id/person_tab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:bt_colorActive="@color/gray_600"
+                    app:bt_colorInactive="@color/gray_600"
+                    app:bt_icon="@drawable/person_icon_24"
+                    app:bt_shape="@drawable/tablayout_background"
+                    app:bt_title="PERSON" />
+
+                <com.gauravk.bubblenavigation.BubbleToggleView
+                    android:id="@+id/tv_show_tab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:bt_colorActive="@color/gray_600"
+                    app:bt_colorInactive="@color/gray_600"
+                    app:bt_icon="@drawable/tv_show_icon"
+                    app:bt_shape="@drawable/tablayout_background"
+                    app:bt_title="TV SHOWS" />
+
+                <com.gauravk.bubblenavigation.BubbleToggleView
+                    android:id="@+id/keyword_tab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:bt_colorActive="@color/gray_600"
+                    app:bt_colorInactive="@color/gray_600"
+                    app:bt_icon="@drawable/keyword_icon"
+                    app:bt_shape="@drawable/tablayout_background"
+                    app:bt_title="KEYWORD" />
+
+            </com.gauravk.bubblenavigation.BubbleNavigationLinearView>
         </androidx.cardview.widget.CardView>
 
         <androidx.recyclerview.widget.RecyclerView

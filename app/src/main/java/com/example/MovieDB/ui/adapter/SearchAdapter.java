@@ -69,8 +69,8 @@ public class SearchAdapter<E> extends RecyclerView.Adapter<SearchAdapter<E>.Sear
         ImageView moviePoster;
         TextView movieName, releaseDate, rateText;
         ProgressBar rateProgressbar;
-        E object;
         private Date date;
+        E object;
         private SimpleDateFormat formatter;
         private String finalDate;
         private Gson g;

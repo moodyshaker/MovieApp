@@ -5,10 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.GradientDrawable;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +29,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.MovieDB.R;
 import com.example.MovieDB.contract.MovieByKeywordContract;
 import com.example.MovieDB.contract.SearchContract;
+import com.example.MovieDB.endpoints.AppConstants;
 import com.example.MovieDB.model.credit_search.CreditResult;
 import com.example.MovieDB.model.keywords_from_search.KeywordResult;
 import com.example.MovieDB.model.movie.Movies;
@@ -41,22 +42,23 @@ import com.example.MovieDB.ui.adapter.MovieReleaseYearAdapter;
 import com.example.MovieDB.ui.adapter.PersonSearchAdapter;
 import com.example.MovieDB.ui.adapter.SearchAdapter;
 import com.example.MovieDB.utils.Utils;
+import com.gauravk.bubblenavigation.BubbleNavigationLinearView;
+import com.gauravk.bubblenavigation.listener.BubbleNavigationChangeListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class Search extends AppCompatActivity implements NetworkReceiver.NetworkCallbackListener, SearchContract, MovieReleaseYearAdapter.ReleaseDateOnClickListener, MovieByKeywordContract, KeywordAdapter.OnMovieKeywordClickListener<KeywordResult>, TabLayout.OnTabSelectedListener {
+public class Search extends AppCompatActivity implements BubbleNavigationChangeListener, NetworkReceiver.NetworkCallbackListener, SearchContract, MovieReleaseYearAdapter.ReleaseDateOnClickListener, MovieByKeywordContract, KeywordAdapter.OnMovieKeywordClickListener<KeywordResult> {
     private Context context = this;
     private Activity activity = this;
     private Toolbar toolbar;
     private TextView title, pagesCounter;
+    private BubbleNavigationLinearView navigationLayout;
     private ActionBar actionBar;
     private RecyclerView searchRecyclerView, releaseYearRecyclerView;
     private SearchView searchView;
-    private TabLayout tabLayout;
     private ImageView closeIcon;
     private SearchAdapter<Movies> movieAdapter;
     private PersonSearchAdapter personAdapter;
@@ -105,7 +107,7 @@ public class Search extends AppCompatActivity implements NetworkReceiver.Network
         refreshLayout = findViewById(R.id.swipe_refresh_layout);
         noDataContainer = findViewById(R.id.no_data_container);
         pagesCounter = findViewById(R.id.pages_counter);
-        tabLayout = findViewById(R.id.search_type_tab_layout);
+        navigationLayout = findViewById(R.id.search_type_tab_layout);
         releaseYearRecyclerView = findViewById(R.id.release_year_rc);
         connectionDialog = Utils.showDisconnectionDialog(context);
         connectedContainer = connectionDialog.findViewById(R.id.connected_container);
@@ -119,19 +121,8 @@ public class Search extends AppCompatActivity implements NetworkReceiver.Network
         }
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.blue_gray_100), PorterDuff.Mode.SRC_ATOP);
         searchView.setIconified(false);
-        tabLayout.addTab(tabLayout.newTab().setText("Movies"));
-        tabLayout.addTab(tabLayout.newTab().setText("Persons"));
-        tabLayout.addTab(tabLayout.newTab().setText("TV Shows"));
-        tabLayout.addTab(tabLayout.newTab().setText("Movie Keyword"));
-        tabLayout.getTabAt(0).select();
-        tabLayout.addOnTabSelectedListener(this);
-        LinearLayout linearLayout = (LinearLayout) tabLayout.getChildAt(0);
-        linearLayout.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(getResources().getColor(R.color.gray_600));
-        drawable.setSize(2, 1);
-        linearLayout.setDividerPadding(25);
-        linearLayout.setDividerDrawable(drawable);
+        navigationLayout.setCurrentActiveItem(0);
+        navigationLayout.setNavigationChangeListener(this);
         closeIcon = searchView.findViewById(androidx.appcompat.R.id.search_close_btn);
         searchText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
         searchText.setHintTextColor(getResources().getColor(R.color.blue_gray_100));
@@ -149,7 +140,7 @@ public class Search extends AppCompatActivity implements NetworkReceiver.Network
         personAdapter = new PersonSearchAdapter(context);
         keywordAdapter = new KeywordAdapter<>(context, this);
         intent = getIntent();
-        switch (tabLayout.getSelectedTabPosition()) {
+        switch (navigationLayout.getCurrentActiveItemPosition()) {
             case 0:
                 searchRecyclerView.setAdapter(movieAdapter);
                 break;
@@ -169,7 +160,7 @@ public class Search extends AppCompatActivity implements NetworkReceiver.Network
                 refreshLayout.setRefreshing(true);
                 movieAdapter.getList().clear();
                 searchRecyclerView.setVisibility(View.GONE);
-                tabLayout.setVisibility(View.GONE);
+                navigationLayout.setVisibility(View.GONE);
                 releaseYearRecyclerView.setVisibility(View.GONE);
                 handler.postDelayed(() -> {
                     presenter.getMovieSearch(1, "", "", searchType);
@@ -177,19 +168,19 @@ public class Search extends AppCompatActivity implements NetworkReceiver.Network
                     releaseYear = "";
                     searchView.setQuery("", false);
                     refreshLayout.setRefreshing(false);
-                    tabLayout.setVisibility(View.VISIBLE);
+                    navigationLayout.setVisibility(View.VISIBLE);
                 }, 1500);
             } else {
                 refreshLayout.setRefreshing(true);
                 searchRecyclerView.setVisibility(View.GONE);
                 releaseYearRecyclerView.setVisibility(View.GONE);
-                tabLayout.setVisibility(View.GONE);
+                navigationLayout.setVisibility(View.GONE);
                 handler.postDelayed(() -> {
                     pagesCounter.setVisibility(View.GONE);
                     releaseYear = "";
                     searchView.setQuery("", false);
                     refreshLayout.setRefreshing(false);
-                    tabLayout.setVisibility(View.VISIBLE);
+                    navigationLayout.setVisibility(View.VISIBLE);
                 }, 1500);
             }
         });
@@ -204,7 +195,7 @@ public class Search extends AppCompatActivity implements NetworkReceiver.Network
                     if ((visibleItems + currentItemPosition) >= totalItem) {
                         if (!isLoading) {
                             isLoading = true;
-                            if ((movieByKeywordPresenter != null) && (tabLayout.getSelectedTabPosition() == 3)) {
+                            if ((movieByKeywordPresenter != null) && (navigationLayout.getCurrentActiveItemPosition() == 3)) {
                                 movieByKeywordPresenter.increasePage();
                             } else {
                                 presenter.increasePages();
@@ -240,10 +231,26 @@ public class Search extends AppCompatActivity implements NetworkReceiver.Network
                     releaseYearRecyclerView.setVisibility(View.GONE);
                     pagesCounter.setVisibility(View.GONE);
                     query = "";
+                    if (keywordAdapter.getKeywordList() != null) {
+                        Log.d(AppConstants.TAG, "onQueryTextChange: From keyword");
+                        keywordAdapter.getKeywordList().clear();
+                    }
+                    if (personAdapter.getList() != null) {
+                        Log.d(AppConstants.TAG, "onQueryTextChange: From person");
+                        personAdapter.getList().clear();
+                    }
+                    if (movieAdapter.getList() != null) {
+                        Log.d(AppConstants.TAG, "onQueryTextChange: From movie");
+                        movieAdapter.getList().clear();
+                    }
+                    if (seriesAdapter.getList() != null) {
+                        Log.d(AppConstants.TAG, "onQueryTextChange: From series");
+                        seriesAdapter.getList().clear();
+                    }
                 } else {
-                    switch (tabLayout.getSelectedTabPosition()) {
+                    switch (navigationLayout.getCurrentActiveItemPosition()) {
                         case 0:
-                            if (movieAdapter.getList() != null && movieAdapter.getList().size() > 0 || newText.isEmpty()) {
+                            if (movieAdapter.getList() != null && movieAdapter.getList().size() > 0) {
                                 movieAdapter.getList().clear();
                             }
                             releaseYearAdapter.setSelected(-1);
@@ -253,7 +260,7 @@ public class Search extends AppCompatActivity implements NetworkReceiver.Network
                             query = presenter.getQuery();
                             break;
                         case 1:
-                            if (personAdapter.getList() != null && personAdapter.getList().size() > 0 || newText.isEmpty()) {
+                            if (personAdapter.getList() != null && personAdapter.getList().size() > 0) {
                                 personAdapter.getList().clear();
                             }
                             releaseYearAdapter.setSelected(-1);
@@ -263,7 +270,7 @@ public class Search extends AppCompatActivity implements NetworkReceiver.Network
                             query = presenter.getQuery();
                             break;
                         case 2:
-                            if (seriesAdapter.getList() != null && seriesAdapter.getList().size() > 0 || newText.isEmpty()) {
+                            if (seriesAdapter.getList() != null && seriesAdapter.getList().size() > 0) {
                                 seriesAdapter.getList().clear();
                             }
                             releaseYearAdapter.setSelected(-1);
@@ -276,7 +283,7 @@ public class Search extends AppCompatActivity implements NetworkReceiver.Network
                             if (!searchRecyclerView.getAdapter().equals(KeywordAdapter.class)) {
                                 searchRecyclerView.setAdapter(keywordAdapter);
                             }
-                            if (keywordAdapter.getKeywordList() != null && keywordAdapter.getKeywordList().size() > 0 || newText.isEmpty()) {
+                            if (keywordAdapter.getKeywordList() != null && keywordAdapter.getKeywordList().size() > 0) {
                                 keywordAdapter.getKeywordList().clear();
                             }
                             releaseYearAdapter.setSelected(-1);
@@ -292,16 +299,18 @@ public class Search extends AppCompatActivity implements NetworkReceiver.Network
         });
         if (intent.hasExtra("movie_keyword")) {
             movieByKeywordPresenter = new MovieByKeywordPresenter(this);
-            TabLayout.Tab tab = tabLayout.getTabAt(3);
-            if (tab != null) {
-                tab.select();
-            }
+            navigationLayout.setCurrentActiveItem(3);
+            searchView.setQueryHint("Keyword...");
+            searchRecyclerView.setAdapter(keywordAdapter);
+            searchType = 3;
+            presenter.getMovieSearch(1, query, releaseYear, searchType);
             String name = intent.getStringExtra("keyword_name");
             searchView.setQuery(name, false);
             int id = intent.getIntExtra("keyword_id", 0);
             movieByKeywordPresenter.getMoviesByKeyword(id, 1);
             searchRecyclerView.setAdapter(movieAdapter);
         }
+
     }
 
     @Override
@@ -421,7 +430,7 @@ public class Search extends AppCompatActivity implements NetworkReceiver.Network
     @Override
     public void releaseDateOnClick(String releaseItem) {
         this.releaseYear = releaseItem;
-        switch (tabLayout.getSelectedTabPosition()) {
+        switch (navigationLayout.getCurrentActiveItemPosition()) {
             case 0:
                 if (movieAdapter.getList() != null && movieAdapter.getList().size() > 0) {
                     movieAdapter.getList().clear();
@@ -451,48 +460,6 @@ public class Search extends AppCompatActivity implements NetworkReceiver.Network
                 presenter.getMovieSearch(currentPage, query, releaseYear, searchType);
                 break;
         }
-    }
-
-
-    @Override
-    public void onTabSelected(TabLayout.Tab tab) {
-        int position = tab.getPosition();
-        switch (position) {
-            case 0:
-                searchView.setQueryHint("Movie name...");
-                searchRecyclerView.setAdapter(movieAdapter);
-                searchType = 0;
-                presenter.getMovieSearch(1, query, releaseYear, searchType);
-                break;
-            case 1:
-                searchView.setQueryHint("Character name...");
-                searchRecyclerView.setAdapter(personAdapter);
-                searchType = 1;
-                presenter.getMovieSearch(1, query, releaseYear, searchType);
-                break;
-            case 2:
-                searchView.setQueryHint("Series name...");
-                searchRecyclerView.setAdapter(seriesAdapter);
-                searchType = 2;
-                presenter.getMovieSearch(1, query, releaseYear, searchType);
-                break;
-            case 3:
-                searchView.setQueryHint("Keyword...");
-                searchRecyclerView.setAdapter(keywordAdapter);
-                searchType = 3;
-                presenter.getMovieSearch(1, query, releaseYear, searchType);
-                break;
-        }
-    }
-
-    @Override
-    public void onTabUnselected(TabLayout.Tab tab) {
-
-    }
-
-    @Override
-    public void onTabReselected(TabLayout.Tab tab) {
-
     }
 
     @Override
@@ -535,6 +502,37 @@ public class Search extends AppCompatActivity implements NetworkReceiver.Network
             connectedContainer.setVisibility(View.GONE);
             disconnectedContainer.setVisibility(View.VISIBLE);
             connectionDialog.show();
+        }
+    }
+
+    @Override
+    public void onNavigationChanged(View view, int position) {
+
+        switch (position) {
+            case 0:
+                searchView.setQueryHint("Movie name...");
+                searchRecyclerView.setAdapter(movieAdapter);
+                searchType = 0;
+                presenter.getMovieSearch(1, query, releaseYear, searchType);
+                break;
+            case 1:
+                searchView.setQueryHint("Character name...");
+                searchRecyclerView.setAdapter(personAdapter);
+                searchType = 1;
+                presenter.getMovieSearch(1, query, releaseYear, searchType);
+                break;
+            case 2:
+                searchView.setQueryHint("Series name...");
+                searchRecyclerView.setAdapter(seriesAdapter);
+                searchType = 2;
+                presenter.getMovieSearch(1, query, releaseYear, searchType);
+                break;
+            case 3:
+                searchView.setQueryHint("Keyword...");
+                searchRecyclerView.setAdapter(keywordAdapter);
+                searchType = 3;
+                presenter.getMovieSearch(1, query, releaseYear, searchType);
+                break;
         }
     }
 }
