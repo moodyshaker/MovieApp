@@ -139,20 +139,30 @@ public class SeriesDetails extends AppCompatActivity implements NetworkReceiver.
     private Handler h;
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         if (player != null) {
             player.play();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (player != null) {
+            player.pause();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         registerReceiver(receiver, filter);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (player != null) {
-            player.pause();
-        }
         unregisterReceiver(receiver);
     }
 
