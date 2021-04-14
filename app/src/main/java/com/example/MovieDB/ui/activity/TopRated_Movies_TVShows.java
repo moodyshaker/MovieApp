@@ -98,12 +98,12 @@ public class TopRated_Movies_TVShows extends NavigationViewActivity implements N
             title.setText(tab.getText());
             tab.select();
         }
-        LinearLayout linearLayout = (LinearLayout) topRatedTabLayout.getChildAt(0);
-        linearLayout.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(getResources().getColor(R.color.white));
-        drawable.setSize(2, 1);
-        linearLayout.setDividerDrawable(drawable);
+//        LinearLayout linearLayout = (LinearLayout) topRatedTabLayout.getChildAt(0);
+//        linearLayout.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
+//        GradientDrawable drawable = new GradientDrawable();
+//        drawable.setColor(getResources().getColor(R.color.white));
+//        drawable.setSize(2, 1);
+//        linearLayout.setDividerDrawable(drawable);
         manager = getSupportFragmentManager();
         transaction = manager.beginTransaction();
         TopRatedMovies topRatedMovies = new TopRatedMovies();

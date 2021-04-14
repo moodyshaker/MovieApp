@@ -90,12 +90,12 @@ public class NowPlaying_OnTheAir extends NavigationViewActivity implements TabLa
             title.setText(tab.getText());
             tab.select();
         }
-        LinearLayout linearLayout = (LinearLayout) nowPlayingTabLayout.getChildAt(0);
-        linearLayout.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(getResources().getColor(R.color.white));
-        drawable.setSize(2, 1);
-        linearLayout.setDividerDrawable(drawable);
+//        LinearLayout linearLayout = (LinearLayout) nowPlayingTabLayout.getChildAt(0);
+//        linearLayout.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
+//        GradientDrawable drawable = new GradientDrawable();
+//        drawable.setColor(getResources().getColor(R.color.white));
+//        drawable.setSize(2, 1);
+//        linearLayout.setDividerDrawable(drawable);
         manager = getSupportFragmentManager();
         transaction = manager.beginTransaction();
         NowPlaying nowPlaying = new NowPlaying();

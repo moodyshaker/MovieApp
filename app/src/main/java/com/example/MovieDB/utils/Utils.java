@@ -1,5 +1,4 @@
 package com.example.MovieDB.utils;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -23,15 +22,12 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ViewGroup;
-
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
-
 import com.example.MovieDB.R;
 import com.example.MovieDB.endpoints.AppConstants;
 import com.example.MovieDB.ui.activity.NowPlaying_OnTheAir;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -39,7 +35,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
 import dmax.dialog.SpotsDialog;
 
 public class Utils {
