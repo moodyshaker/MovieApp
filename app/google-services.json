@@ -1,116 +1,41 @@
 {
   "project_info": {
-    "project_number": "813758733444",
-    "firebase_url": "https://memmaas-61afb.firebaseio.com",
-    "project_id": "memmaas-61afb",
-    "storage_bucket": "memmaas-61afb.appspot.com"
+    "project_number": "535539385034",
+    "project_id": "movieapp-9ad84",
+    "storage_bucket": "movieapp-9ad84.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:813758733444:android:06f2976c353e04e408b6d1",
-        "android_client_info": {
-          "package_name": "com.ahmed.otlobapp"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "813758733444-rfc6gv17vpashscpnts31bcc701h5102.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ahmed.otlobapp",
-            "certificate_hash": "6bb1dda8d4204393428f378e0041948a192c5e67"
-          }
-        },
-        {
-          "client_id": "813758733444-gd7htav5c22m69q66argmnvmt927h60k.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBdkDHAgowlNW7GssRVhOaEFY37asAOyfg"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "813758733444-gd7htav5c22m69q66argmnvmt927h60k.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:813758733444:android:3b82df60f5ae4dc908b6d1",
+        "mobilesdk_app_id": "1:535539385034:android:7b64d9c839bb8b8d30ea33",
         "android_client_info": {
           "package_name": "com.example.MovieDB"
         }
       },
       "oauth_client": [
         {
-          "client_id": "813758733444-5dalf18q6i66ao6ai18865s4p4liadov.apps.googleusercontent.com",
+          "client_id": "535539385034-pj80l0ee2elhs4diiq166qeiblemaebf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.MovieDB",
-            "certificate_hash": "6bb1dda8d4204393428f378e0041948a192c5e67"
+            "certificate_hash": "720c68c22a67e204833f81cf8dad3c08b36de264"
           }
         },
         {
-          "client_id": "813758733444-gd7htav5c22m69q66argmnvmt927h60k.apps.googleusercontent.com",
+          "client_id": "535539385034-5dhbepogster1pjtolt7pvbn5m2fe5q5.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBdkDHAgowlNW7GssRVhOaEFY37asAOyfg"
+          "current_key": "AIzaSyCC3qJLVmk19ooSwrW4ycq8nxW0Dake-sc"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "813758733444-gd7htav5c22m69q66argmnvmt927h60k.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:813758733444:android:f9bdfacb89b836d708b6d1",
-        "android_client_info": {
-          "package_name": "com.example.todo_list"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "813758733444-87onf93isqfv77a29ovc3mfuj9s19qn8.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.todo_list",
-            "certificate_hash": "6bb1dda8d4204393428f378e0041948a192c5e67"
-          }
-        },
-        {
-          "client_id": "813758733444-gd7htav5c22m69q66argmnvmt927h60k.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBdkDHAgowlNW7GssRVhOaEFY37asAOyfg"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "813758733444-gd7htav5c22m69q66argmnvmt927h60k.apps.googleusercontent.com",
+              "client_id": "535539385034-5dhbepogster1pjtolt7pvbn5m2fe5q5.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
