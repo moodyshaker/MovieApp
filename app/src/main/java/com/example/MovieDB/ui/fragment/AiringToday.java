@@ -1,26 +1,22 @@
 package com.example.MovieDB.ui.fragment;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import com.example.MovieDB.R;
 import com.example.MovieDB.contract.SeriesContract;
 import com.example.MovieDB.model.series.SeriesResult;
 import com.example.MovieDB.presenter.SeriesPresenter;
 import com.example.MovieDB.ui.adapter.SearchAdapter;
 import com.victor.loading.rotate.RotateLoading;
-
 import java.util.List;
 
 public class AiringToday extends Fragment implements SeriesContract {

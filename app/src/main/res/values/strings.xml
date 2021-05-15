@@ -43,8 +43,8 @@
     <string name="logout">Logout</string>
     <string name="login">Login</string>
     <string name="forget_password">Forget password?</string>
-    <string name="web_client_id">813758733444-gd7htav5c22m69q66argmnvmt927h60k.apps.googleusercontent.com</string>
-    <string name="web_client_secret">qD5aIiE6VVElmOKc8lnKhEk7</string>
+    <string name="web_client_id">535539385034-5dhbepogster1pjtolt7pvbn5m2fe5q5.apps.googleusercontent.com</string>
+    <string name="web_client_secret">1HkLpmAsvp0CTQ1w5glhc8ZZ</string>
     <string name="please_confirm_your_account">Please confirm your account</string>
     <string name="please_enter_your_new_password">Please enter your new password</string>
     <string name="action_delete_account">delete account</string>

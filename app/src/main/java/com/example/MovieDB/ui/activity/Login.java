@@ -267,6 +267,7 @@ public class Login extends AppCompatActivity implements NetworkReceiver.NetworkC
         callbackManager.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == AppConstants.GOOGLE_SING_IN && resultCode == RESULT_OK) {
+            Log.e(AppConstants.TAG, "onActivityResult: Hello There");
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
